@@ -1,0 +1,4199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+
+  <meta
+    name="description"
+    content="Portfolio karya kreatif, desain grafis, video, dan proyek personal."
+  />
+
+  <title>Estevano E. Katuuk — Portfolio</title>
+
+  <style>
+    :root {
+      --background: #000;
+      --foreground: #f5f5f5;
+      --muted: #858585;
+      --panel: #181818;
+      --border: rgba(255, 255, 255, 0.13);
+      --page-x: clamp(28px, 7.1vw, 138px);
+      --page-y: clamp(28px, 8.5vh, 92px);
+      --gallery-gap: 5px;
+      --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      color: var(--foreground);
+      background: var(--background);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: var(--font-main);
+      font-weight: 400;
+      letter-spacing: -0.055em;
+      cursor: none;
+    }
+
+    button,
+    a {
+      color: inherit;
+      font: inherit;
+      cursor: none;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      background: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    img,
+    video,
+    iframe {
+      display: block;
+      max-width: 100%;
+    }
+
+    iframe {
+      border: 0;
+    }
+
+    ::selection {
+      color: #000;
+      background: #fff;
+    }
+
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      visibility: hidden;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px);
+      transition:
+        opacity 650ms var(--ease),
+        transform 650ms var(--ease),
+        visibility 650ms;
+    }
+
+    .page.is-active {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .fade-item {
+      opacity: 0;
+      transform: translateY(22px);
+      transition:
+        opacity 750ms var(--ease),
+        transform 750ms var(--ease);
+    }
+
+    .page.is-active .fade-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate3d(-50%, -50%, 0);
+      transition:
+        width 220ms var(--ease),
+        height 220ms var(--ease),
+        background-color 220ms var(--ease),
+        border-color 220ms var(--ease),
+        opacity 200ms ease;
+      mix-blend-mode: difference;
+    }
+
+    .cursor.is-visible {
+      opacity: 1;
+    }
+
+    .cursor.is-hovering {
+      width: 46px;
+      height: 46px;
+      border-color: #fff;
+      background: #fff;
+    }
+
+    .cursor.is-viewing {
+      width: 76px;
+      height: 76px;
+    }
+
+    .cursor::after {
+      content: attr(data-label);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #000;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0;
+      opacity: 0;
+    }
+
+    .cursor.is-viewing::after {
+      opacity: 1;
+    }
+
+    /* =========================================================
+       HOME
+    ========================================================== */
+
+    .home-page {
+      display: grid;
+      place-items: center;
+      padding: var(--page-y) var(--page-x);
+    }
+
+    .home-composition {
+      width: min(100%, 1040px);
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(220px, 315px)
+        minmax(360px, 490px)
+        minmax(145px, 215px);
+
+      grid-template-rows:
+        minmax(0, 1fr)
+        54px;
+
+      grid-template-areas:
+        "work portrait intro"
+        "contact portrait intro";
+
+      align-items: stretch;
+
+      gap:
+        clamp(12px, 1vw, 20px)
+        clamp(14px, 1.2vw, 24px);
+
+      margin-left: clamp(0px, 7vw, 140px);
+    }
+
+    .work-button {
+      grid-area: work;
+      position: relative;
+
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      height: 100%;
+      min-height: 0;
+
+      overflow: hidden;
+
+      color: #fff;
+      background: var(--panel);
+
+      container-type: inline-size;
+      isolation: isolate;
+
+      transition:
+        color 300ms,
+        background-color 300ms;
+    }
+
+    .work-button:hover,
+    .work-button:focus-visible {
+      color: #000;
+      background: #f2f2f2;
+      outline: none;
+    }
+
+    .work-button-inner {
+      position: absolute;
+      inset: 0;
+
+      display: flex;
+      align-items: center;
+
+      overflow: hidden;
+
+      padding:
+        clamp(24px, 16cqw, 52px)
+        clamp(20px, 15cqw, 48px);
+    }
+
+    .work-button-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      max-width: 100%;
+      overflow: hidden;
+
+      font-size: clamp(38px, 21cqw, 68px);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+    }
+
+    .work-button-line {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .contact-button {
+      grid-area: contact;
+
+      width: 100%;
+      min-height: 54px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 18px;
+
+      color: var(--muted);
+      background: #111;
+
+      font-size: 14px;
+      letter-spacing: -0.025em;
+
+      transition:
+        color 250ms,
+        background-color 250ms;
+    }
+
+    .contact-button::after {
+      content: "↗";
+      font-size: 17px;
+    }
+
+    .contact-button:hover,
+    .contact-button:focus-visible {
+      color: #000;
+      background: #f2f2f2;
+      outline: none;
+    }
+
+    .portrait-frame {
+      grid-area: portrait;
+      position: relative;
+
+      min-width: 0;
+      width: 100%;
+      aspect-ratio: 1;
+
+      overflow: hidden;
+
+      padding: 10px;
+      background: #171717;
+    }
+
+    .portrait-frame img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      filter: grayscale(1);
+
+      transition:
+        filter 500ms,
+        transform 900ms var(--ease);
+    }
+
+    .portrait-frame:hover img {
+      filter: grayscale(0);
+      transform: scale(1.025);
+    }
+
+    .intro-copy {
+      grid-area: intro;
+      align-self: stretch;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .intro-name {
+      font-size: clamp(20px, 1.35vw, 28px);
+      line-height: 1.2;
+      letter-spacing: -0.06em;
+    }
+
+    .intro-words {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      padding-top: clamp(62px, 8vh, 130px);
+
+      color: var(--muted);
+
+      font-size: clamp(16px, 1.15vw, 23px);
+      line-height: 1;
+    }
+
+    .intro-words span {
+      white-space: nowrap;
+    }
+
+    /* =========================================================
+       PROJECT INDEX
+    ========================================================== */
+
+    .project-index-page {
+      display: grid;
+      place-items: center;
+      padding: var(--page-y) var(--page-x);
+    }
+
+    .project-index-wrap {
+      width: min(100%, 1000px);
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: clamp(15px, 2.5vh, 28px);
+    }
+
+    .project-link {
+      color: #f5f5f5;
+
+      font-size: clamp(35px, 3.05vw, 60px);
+      line-height: 1;
+      letter-spacing: -0.075em;
+      text-align: center;
+
+      transition:
+        color 220ms,
+        transform 250ms var(--ease);
+    }
+
+    .project-link:hover {
+      color: var(--muted);
+      transform: translateY(-2px);
+    }
+
+    .back-button {
+      position: fixed;
+      top: 34px;
+      left: var(--page-x);
+      z-index: 80;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .back-button:hover {
+      color: #fff;
+    }
+
+    /* =========================================================
+       DETAIL
+    ========================================================== */
+
+    .project-detail-page {
+      padding: 0 var(--page-x);
+    }
+
+    .detail-layout {
+      width: 100%;
+      height: 100%;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(350px, 31vw)
+        minmax(0, 1fr);
+
+      gap: clamp(40px, 6.3vw, 122px);
+    }
+
+    .category-panel {
+      position: relative;
+      z-index: 3;
+
+      height: 100%;
+
+      overflow-y: auto;
+
+      padding-top: clamp(112px, 11.8vh, 128px);
+      padding-bottom: 50px;
+
+      background: #000;
+
+      scrollbar-width: none;
+    }
+
+    .category-panel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      gap: clamp(26px, 4vh, 48px);
+    }
+
+    .category-button {
+      max-width: 100%;
+
+      color: var(--muted);
+
+      font-size: clamp(30px, 2.55vw, 50px);
+      line-height: 1;
+      letter-spacing: -0.07em;
+      text-align: left;
+
+      transition:
+        color 250ms,
+        transform 250ms var(--ease);
+    }
+
+    .category-button:hover {
+      color: #d9d9d9;
+      transform: translateX(8px);
+    }
+
+    .category-button.is-active {
+      color: #fff;
+    }
+
+    .category-info {
+      display: none;
+
+      margin-top: clamp(45px, 7vh, 78px);
+      padding-bottom: 50px;
+
+      animation: info-in 500ms var(--ease) both;
+    }
+
+    .category-info.is-visible {
+      display: block;
+    }
+
+    .category-info-label {
+      margin-bottom: 20px;
+
+      color: var(--muted);
+
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .category-info-title {
+      margin-bottom: 35px;
+
+      font-size: clamp(25px, 2.1vw, 38px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.065em;
+    }
+
+    .category-info-meta {
+      display: grid;
+      gap: 16px;
+
+      margin-bottom: 34px;
+    }
+
+    .category-info-row {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+
+      gap: 12px;
+
+      padding-top: 12px;
+
+      border-top: 1px solid var(--border);
+
+      font-size: 13px;
+      line-height: 1.4;
+      letter-spacing: -0.02em;
+    }
+
+    .category-info-key {
+      color: var(--muted);
+    }
+
+    .category-info-value {
+      color: #fff;
+    }
+
+    .category-info-description {
+      color: #aaa;
+
+      font-size: clamp(15px, 1vw, 18px);
+      line-height: 1.5;
+      letter-spacing: -0.03em;
+
+      white-space: pre-line;
+    }
+
+    @keyframes info-in {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* =========================================================
+       GALLERY — CSS COLUMNS MASONY FIX (v2 Style)
+    ========================================================== */
+
+    .gallery-scroll {
+      width: 100%;
+
+      height: 100vh;
+      height: 100dvh;
+
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      padding:
+        clamp(112px, 11.8vh, 128px)
+        0
+        0;
+
+      scrollbar-width: none;
+    }
+
+    .gallery-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gallery-grid {
+      column-count: 3;
+      column-gap: var(--gallery-gap);
+      width: 100%;
+      font-size: 0;
+      line-height: 0;
+    }
+
+    .gallery-card {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-width: 0;
+      margin: 0 0 var(--gallery-gap) 0;
+      break-inside: avoid;
+
+      overflow: hidden;
+
+      background: #999;
+
+      animation: card-in 600ms var(--ease) both;
+    }
+
+    .gallery-card[data-ratio="portrait"] {
+      aspect-ratio: 9 / 16;
+    }
+
+    .gallery-card[data-ratio="portrait-wide"] {
+      aspect-ratio: 3 / 4;
+    }
+
+    .gallery-card[data-ratio="square"] {
+      aspect-ratio: 1;
+    }
+
+    .gallery-card[data-ratio="landscape"] {
+      aspect-ratio: 16 / 9;
+    }
+
+    .gallery-card[data-ratio="landscape-four-three"] {
+      aspect-ratio: 4 / 3;
+    }
+
+    .gallery-card[data-ratio="wide"] {
+      aspect-ratio: 21 / 9;
+    }
+
+    .gallery-card img,
+    .gallery-card video {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+
+      object-fit: cover;
+
+      transition:
+        transform 750ms var(--ease),
+        filter 350ms;
+    }
+
+    .gallery-card:hover img,
+    .gallery-card:hover video {
+      filter: brightness(0.76);
+      transform: scale(1.035);
+    }
+
+    .gallery-card-info {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 2;
+
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      padding: 18px;
+
+      background:
+        linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.86),
+          transparent
+        );
+
+      opacity: 0;
+      transform: translateY(10px);
+
+      transition:
+        opacity 300ms,
+        transform 350ms var(--ease);
+    }
+
+    .gallery-card:hover .gallery-card-info,
+    .gallery-card:focus-visible .gallery-card-info {
+      opacity: 1;
+      transform: none;
+    }
+
+    .gallery-card-title {
+      font-size: clamp(16px, 1.15vw, 22px);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    .gallery-card-type {
+      color: rgba(255, 255, 255, 0.7);
+
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 3;
+
+      width: 0;
+      height: 0;
+
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
+      border-left: 29px solid rgba(40, 40, 40, 0.75);
+
+      transform: translate(-42%, -50%);
+
+      pointer-events: none;
+    }
+
+    .gallery-empty {
+      min-height: 60vh;
+      grid-column: 1 / -1;
+
+      display: grid;
+      place-items: center;
+
+      color: var(--muted);
+
+      font-size: clamp(24px, 3vw, 48px);
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    @keyframes card-in {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* =========================================================
+       VIEWER
+    ========================================================== */
+
+    .viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+
+      visibility: hidden;
+
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+
+      padding:
+        max(22px, env(safe-area-inset-top))
+        max(24px, env(safe-area-inset-right))
+        max(22px, env(safe-area-inset-bottom))
+        max(24px, env(safe-area-inset-left));
+
+      background: rgba(0, 0, 0, 0.96);
+      backdrop-filter: blur(16px);
+
+      opacity: 0;
+
+      transition:
+        opacity 350ms,
+        visibility 350ms;
+    }
+
+    .viewer.is-open {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .viewer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      gap: 20px;
+
+      padding-bottom: 18px;
+
+      font-size: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .viewer-close {
+      color: var(--muted);
+    }
+
+    .viewer-close:hover {
+      color: #fff;
+    }
+
+    .viewer-body {
+      min-height: 0;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(220px, 300px);
+
+      gap: clamp(26px, 4vw, 74px);
+
+      overflow: hidden;
+    }
+
+    .viewer-media-area {
+      min-width: 0;
+      min-height: 0;
+
+      display: grid;
+      place-items: center;
+
+      overflow: hidden;
+    }
+
+    .viewer-media-shell {
+      position: relative;
+
+      width: min(100%, 1400px);
+      height: min(100%, 86vh);
+
+      display: grid;
+      place-items: center;
+
+      overflow: hidden;
+
+      background: #0a0a0a;
+    }
+
+    .viewer-media-shell[data-ratio="portrait"] {
+      width: min(100%, calc(82vh * 9 / 16));
+      aspect-ratio: 9 / 16;
+      height: auto;
+    }
+
+    .viewer-media-shell[data-ratio="portrait-wide"] {
+      width: min(100%, calc(82vh * 3 / 4));
+      aspect-ratio: 3 / 4;
+      height: auto;
+    }
+
+    .viewer-media-shell[data-ratio="square"] {
+      width: min(100%, 82vh);
+      aspect-ratio: 1;
+      height: auto;
+    }
+
+    .viewer-media-shell[data-ratio="landscape"] {
+      aspect-ratio: 16 / 9;
+      height: auto;
+    }
+
+    .viewer-media-shell[data-ratio="landscape-four-three"] {
+      width: min(100%, calc(82vh * 4 / 3));
+      aspect-ratio: 4 / 3;
+      height: auto;
+    }
+
+    .viewer-media-shell[data-ratio="wide"] {
+      aspect-ratio: 21 / 9;
+      height: auto;
+    }
+
+    .viewer-media-shell img,
+    .viewer-media-shell video,
+    .viewer-media-shell iframe {
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+
+      background: #0a0a0a;
+    }
+
+    .viewer-caption {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+
+      padding-bottom: 40px;
+    }
+
+    .viewer-item-type {
+      margin-bottom: 15px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .viewer-item-title {
+      font-size: clamp(35px, 3.3vw, 62px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+    }
+
+    .viewer-error {
+      padding: 45px;
+
+      color: #b7b7b7;
+      background: #111;
+
+      font-size: 22px;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    /* =========================================================
+       CONTACT
+    ========================================================== */
+
+    .contact-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+
+      visibility: hidden;
+
+      display: grid;
+      place-items: center;
+
+      padding: 22px;
+
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(16px);
+
+      opacity: 0;
+
+      transition:
+        opacity 350ms,
+        visibility 350ms;
+    }
+
+    .contact-modal.is-open {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .contact-card {
+      position: relative;
+
+      width: min(100%, 650px);
+
+      padding: clamp(30px, 5vw, 70px);
+
+      background: #141414;
+    }
+
+    .contact-close {
+      position: absolute;
+      top: 20px;
+      right: 22px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+    }
+
+    .contact-eyebrow {
+      margin-bottom: clamp(55px, 10vh, 110px);
+
+      color: var(--muted);
+
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .contact-heading {
+      margin-bottom: clamp(45px, 8vh, 85px);
+
+      font-size: clamp(40px, 5vw, 74px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+    }
+
+    .contact-links {
+      display: grid;
+    }
+
+    .contact-link {
+      display: flex;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      padding: 17px 0;
+
+      border-top: 1px solid var(--border);
+
+      font-size: clamp(16px, 1.5vw, 22px);
+    }
+
+    .contact-link:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-link::after {
+      content: "↗";
+      color: var(--muted);
+    }
+
+    .mobile-category-toggle {
+      display: none;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media (max-width: 1180px) {
+      .home-composition {
+        grid-template-columns:
+          minmax(205px, 285px)
+          minmax(340px, 450px)
+          minmax(130px, 175px);
+
+        margin-left: 0;
+      }
+
+      .detail-layout {
+        grid-template-columns:
+          minmax(290px, 34vw)
+          minmax(0, 1fr);
+
+        gap: 45px;
+      }
+
+      .gallery-grid {
+        column-count: 3;
+      }
+    }
+
+    @media (max-width: 820px) {
+      :root {
+        --page-x: 22px;
+        --page-y: 22px;
+        --gallery-gap: 4px;
+      }
+
+      body,
+      button,
+      a {
+        cursor: auto;
+      }
+
+      .cursor {
+        display: none;
+      }
+
+      .home-page,
+      .project-index-page {
+        overflow-y: auto;
+      }
+
+      .home-composition {
+        width: min(100%, 520px);
+
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+
+        grid-template-areas:
+          "portrait"
+          "work"
+          "contact"
+          "intro";
+
+        align-items: stretch;
+
+        margin-left: 0;
+        padding: 55px 0;
+      }
+
+      .work-button {
+        height: auto;
+        aspect-ratio: 1.45 / 1;
+      }
+
+      .intro-copy {
+        min-height: 240px;
+      }
+
+      .project-index-wrap {
+        align-items: flex-start;
+        padding: 100px 0;
+      }
+
+      .project-link {
+        text-align: left;
+      }
+
+      .project-detail-page {
+        padding: 0;
+      }
+
+      .detail-layout {
+        display: block;
+      }
+
+      .category-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 60;
+
+        height: auto;
+        overflow: visible;
+
+        padding: 20px 22px;
+
+        border-bottom: 1px solid var(--border);
+
+        background: #000;
+      }
+
+      .mobile-category-toggle {
+        width: 100%;
+
+        display: flex;
+        justify-content: space-between;
+
+        color: #fff;
+
+        font-size: 17px;
+      }
+
+      .mobile-category-toggle::after {
+        content: "+";
+
+        color: var(--muted);
+
+        font-size: 25px;
+      }
+
+      .category-panel.is-open
+      .mobile-category-toggle::after {
+        content: "−";
+      }
+
+      .category-list {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+
+        display: none;
+
+        gap: 0;
+
+        max-height: calc(100dvh - 65px);
+
+        overflow-y: auto;
+
+        padding: 8px 22px 25px;
+
+        border-bottom: 1px solid var(--border);
+
+        background: #000;
+      }
+
+      .category-panel.is-open
+      .category-list {
+        display: flex;
+      }
+
+      .category-button {
+        width: 100%;
+
+        padding: 13px 0;
+
+        font-size: 27px;
+      }
+
+      .category-info {
+        position: static;
+
+        margin-top: 0;
+        padding: 30px 22px 45px;
+
+        border-bottom: 1px solid var(--border);
+      }
+
+      .gallery-scroll {
+        height: 100vh;
+        height: 100dvh;
+
+        padding: 65px 0 0;
+      }
+
+      .gallery-grid {
+        column-count: 2;
+      }
+
+      .gallery-card-info {
+        opacity: 1;
+        transform: none;
+      }
+
+      .back-button {
+        top: auto;
+
+        bottom:
+          max(
+            18px,
+            env(safe-area-inset-bottom)
+          );
+
+        left: 22px;
+
+        padding: 10px 14px;
+
+        border-radius: 999px;
+
+        background: #191919;
+      }
+
+      .viewer {
+        padding:
+          max(16px, env(safe-area-inset-top))
+          14px
+          max(16px, env(safe-area-inset-bottom));
+      }
+
+      .viewer-body {
+        grid-template-columns: 1fr;
+
+        grid-template-rows:
+          minmax(0, 1fr)
+          auto;
+
+        overflow-y: auto;
+      }
+
+      .viewer-caption {
+        padding: 15px 0 35px;
+      }
+
+      .contact-card {
+        padding: 55px 25px 30px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .gallery-grid {
+        column-count: 1;
+      }
+
+      .viewer-item-title {
+        font-size: 39px;
+      }
+
+      .contact-heading {
+        font-size: 42px;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      body,
+      button,
+      a {
+        cursor: auto;
+      }
+
+      .cursor {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <main
+      id="homePage"
+      class="page home-page is-active"
+    >
+      <section
+        class="home-composition"
+        aria-label="Introduction"
+      >
+        <button
+          id="openWorkButton"
+          class="work-button fade-item interactive"
+          type="button"
+          aria-label="Open my work"
+        >
+          <span class="work-button-inner">
+            <span
+              class="work-button-label"
+              aria-hidden="true"
+            >
+              <span class="work-button-line">MY</span>
+              <span class="work-button-line">WORK</span>
+            </span>
+          </span>
+        </button>
+
+        <button
+          id="openContactButton"
+          class="contact-button fade-item interactive"
+          type="button"
+        >
+          <span>CONTACT</span>
+        </button>
+
+        <figure class="portrait-frame fade-item">
+          <img
+            src="https://www.image2url.com/r2/default/images/1783962341493-9d6e02b1-3f80-4bfb-b304-9a4ababf464f.jpg"
+            alt="Portrait of Estevano E. Katuuk"
+            onerror="
+              this.onerror = null;
+              this.src =
+                'https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&w=1000&q=85';
+            "
+          />
+        </figure>
+
+        <aside class="intro-copy fade-item">
+          <div class="intro-name">
+            Estevano E.<br />
+            Katuuk
+          </div>
+
+          <div
+            class="intro-words"
+            aria-hidden="true"
+          >
+            <span>just a</span>
+            <span>regular, normal</span>
+            <span>very normal</span>
+            <span>guy</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <main
+      id="projectIndexPage"
+      class="page project-index-page"
+    >
+      <button
+        class="back-button interactive"
+        type="button"
+        data-action="home"
+      >
+        ← Home
+      </button>
+
+      <nav
+        id="projectIndex"
+        class="project-index-wrap"
+        aria-label="Project list"
+      ></nav>
+    </main>
+
+    <main
+      id="projectDetailPage"
+      class="page project-detail-page"
+    >
+      <button
+        class="back-button interactive"
+        type="button"
+        data-action="projects"
+      >
+        ← All Projects
+      </button>
+
+      <div class="detail-layout">
+        <aside
+          id="categoryPanel"
+          class="category-panel"
+        >
+          <button
+            id="mobileCategoryToggle"
+            class="mobile-category-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="categoryList"
+          >
+            <span id="mobileCategoryLabel">
+              Category
+            </span>
+          </button>
+
+          <nav
+            id="categoryList"
+            class="category-list"
+            aria-label="Project categories"
+          ></nav>
+
+          <section
+            id="categoryInfo"
+            class="category-info"
+            aria-live="polite"
+          >
+            <div class="category-info-label">
+              Project Information
+            </div>
+
+            <h2
+              id="categoryInfoTitle"
+              class="category-info-title"
+            ></h2>
+
+            <div class="category-info-meta">
+              <div class="category-info-row">
+                <span class="category-info-key">
+                  Role
+                </span>
+
+                <span
+                  id="categoryInfoRole"
+                  class="category-info-value"
+                ></span>
+              </div>
+
+              <div class="category-info-row">
+                <span class="category-info-key">
+                  Software
+                </span>
+
+                <span
+                  id="categoryInfoSoftware"
+                  class="category-info-value"
+                ></span>
+              </div>
+
+              <div class="category-info-row">
+                <span class="category-info-key">
+                  Year
+                </span>
+
+                <span
+                  id="categoryInfoYear"
+                  class="category-info-value"
+                ></span>
+              </div>
+            </div>
+
+            <p
+              id="categoryInfoDescription"
+              class="category-info-description"
+            ></p>
+          </section>
+        </aside>
+
+        <section
+          id="galleryScroll"
+          class="gallery-scroll"
+          aria-label="Portfolio showcase"
+          tabindex="0"
+        >
+          <div id="mobileCategoryInfoMount"></div>
+          <div id="galleryGrid" class="gallery-grid"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <section
+    id="viewer"
+    class="viewer"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="viewerTitle"
+  >
+    <header class="viewer-header">
+      <span id="viewerHeaderLabel">
+        Project preview
+      </span>
+
+      <button
+        id="viewerClose"
+        class="viewer-close interactive"
+        type="button"
+      >
+        Close ×
+      </button>
+    </header>
+
+    <div class="viewer-body">
+      <div
+        id="viewerMediaArea"
+        class="viewer-media-area"
+      ></div>
+
+      <aside class="viewer-caption">
+        <div
+          id="viewerItemType"
+          class="viewer-item-type"
+        ></div>
+
+        <h2
+          id="viewerTitle"
+          class="viewer-item-title"
+        ></h2>
+      </aside>
+    </div>
+  </section>
+
+  <section
+    id="contactModal"
+    class="contact-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="contactHeading"
+  >
+    <div class="contact-card">
+      <button
+        id="contactClose"
+        class="contact-close interactive"
+        type="button"
+      >
+        Close ×
+      </button>
+
+      <div class="contact-eyebrow">
+        Contact
+      </div>
+
+      <h2
+        id="contactHeading"
+        class="contact-heading"
+      >
+        Let’s make something good.
+      </h2>
+
+      <div class="contact-links">
+        <a
+          id="emailLink"
+          class="contact-link interactive"
+          href="#"
+        ></a>
+
+        <a
+          id="instagramLink"
+          class="contact-link interactive"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        ></a>
+      </div>
+    </div>
+  </section>
+
+  <div
+    id="cursor"
+    class="cursor"
+    aria-hidden="true"
+  ></div>
+
+  <script>
+    const CONTACT_DATA = {
+  "email": "edward.katuuk@gmail.com",
+  "instagramUsername": "@edwardkatuuk",
+  "instagramURL": "https://instagram.com/edwardkatuuk"
+};
+
+    const PORTFOLIO_DATA = [
+  {
+    "id": "creators",
+    "name": "Creators",
+    "categories": [
+      {
+        "id": "padelfluencer",
+        "name": "Padelfluencer - 2026",
+        "role": "Photographer",
+        "software": "Adobe Lightroom",
+        "year": "2026",
+        "description": "Padelfluencer 2026 is a gathering and padel tournament for content creators and influencers in North Sulawesi.\n\nSony a6500 with Tamron 17-70mm f2.8",
+        "items": [
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987486158-33311aed-dc13-4bc2-a002-efd1d33138ce.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987703808-51438848-0353-4a6a-aa61-a60e24f2dbf4.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987718053-ca9ec68b-fbd5-445f-9417-3d418f3ee3a3.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987727735-96b5af9b-783f-432f-957f-80a94321ce9c.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987656716-71ebac56-b818-44ad-ad3f-6cbe1270103e.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987647418-77ec982e-d616-4f5f-85fe-b91f99ebc2f4.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987667732-15334bbe-92c3-472b-bde3-f8243d15a8d4.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987677749-f7fc8de7-5d10-45d2-97c5-c4c046ed406e.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987695076-d69d4b16-09d8-4f8a-ba62-601f6f09541a.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987737401-2c7ed132-fade-43b7-b5dd-d05124e7c2dc.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987747377-54512a36-b2af-4112-81ed-081cb59089b1.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987754586-3df40418-c905-4687-8168-771860ef8e65.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987761848-d1f45862-112d-4a81-8c36-ad6e21749cdc.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987769335-b8923453-60d9-450c-bcd4-c377670dfa36.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987778253-49958f7a-3130-4ec4-b56e-71ca85d58933.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987786168-5aa42f44-b4a0-4ae1-bab2-b25eef6eaa26.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987794653-1a57652f-b346-4f68-8114-1d509355b6dc.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987805805-d50bee4f-5e12-4351-9c9a-631948a2319d.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987816913-d0925398-fac2-4cfa-a51c-5c6e57b116b6.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987825288-8a0518f9-87a6-42b1-8d01-d3722deda2d5.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987834259-a68a3899-3599-41b6-b0ca-f204bf612b73.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987843654-076cf0b9-6653-4750-9526-a6122b407fd6.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987851251-65205c80-8f99-4ce6-a194-2d9f07dfad54.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987859345-2cb0a8dc-4c86-41f5-95d1-02a89ced0478.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987869236-dc104d00-34f3-41a4-9fc5-ec0e914f9c81.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987877905-a898dbda-0275-4909-a73d-da9b5d140848.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987887781-81c8b817-7b8f-41fb-a6cb-15b9a8cd236f.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987896762-10296b67-2af3-48e6-b6a2-a1e713441751.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987907072-a7002be9-7055-4b6d-a502-ba1878931f94.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987915712-ba6c39ba-8208-4d12-a0f0-05d1af58ec57.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987927705-dda26b91-03fa-4853-8be5-62d7c8e375c7.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987935998-d7ee4ddb-3dd3-4ef2-aa07-3e488ebf9ffa.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987943741-2459c311-5619-47f7-8d4a-221cba9cdfd6.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987952330-e068b284-f161-4c92-9222-626380c53c6d.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783987960837-2d0c8b4a-e7fe-4d0e-9c30-ab275c0c53e7.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987969091-253cf75e-5a09-4f3d-bc0e-3fdb5016b9f0.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987976762-2cdaacc1-1a44-4621-a10e-63fed8113190.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987984503-2e2618f1-aacb-4a93-8695-ad1ff7bc7cc5.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987992411-3fac2536-2369-43bf-bc96-1e59cfe0e0da.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783987999378-e70a540a-90be-4627-92df-a9f37728aaa2.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988007655-1af5199b-4e30-475d-86ed-61b8956fa6c0.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988014326-58c98f4a-7eaf-4837-b0d5-11dd6bb20e70.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988023362-b00e4d2c-6d3a-4cae-9860-34a5a468861d.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988030152-1a31d72f-45ec-4a48-b718-c8457b39283f.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988037878-aff81b14-30eb-4d5f-8814-13657dbd1da1.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988046177-5ad2b37f-3bf0-4233-a6e0-2015a58e884a.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783988054907-66527cf1-c61a-4e8d-b589-c4261816a47d.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783988063018-f95edc7a-128e-4f44-8023-4a305a3e3a15.jpg"
+          },
+          {
+            "title": "PADEL- FLUENCER",
+            "type": "image",
+            "ratio": "landscape-four-three",
+            "src": "https://mp3tourl.com/images/1783988070534-424fd15b-b8da-467e-8680-5b3ab416cda5.jpg"
+          }
+        ]
+      },
+      {
+        "id": "dirrel-lukye",
+        "name": "Dirrel Lukye",
+        "role": "Videographer / Video Editor / Graphic Designer",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2025-2026",
+        "description": "My Project with Dirrel Lukye, a content creator who often discusses history and culture, in North Sulawesi.",
+        "items": [
+          {
+            "title": "Dirrel x Techo Fest",
+            "type": "video",
+            "ratio": "portrait",
+            "src": "https://www.image2url.com/r2/default/videos/1783991786670-e2afcfb0-ee96-4459-b2f7-366bdddfe9d1.mp4"
+          },
+          {
+            "title": "Dirrel x Bitcoin Goceng",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/1bgsk7bSHm4"
+          },
+          {
+            "title": "Dirrel x Bitcoin Goceng",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/vsYTFOLm4T4"
+          },
+          {
+            "title": "Dirrel x Bitcoin Goceng",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/LjqLJWOL8tc"
+          },
+          {
+            "title": "Dirrel x Bitcoin Goceng",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/quOiwMw3wWQ"
+          },
+          {
+            "title": "Dirrel x Bitcoin Goceng",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/Yo4RDsU-FxA"
+          },
+          {
+            "title": "Dirrel x Penerus Daerah",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/Umc6z88DglY"
+          },
+          {
+            "title": "Dirrel x Indihome",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/sL0WY5KiEpI"
+          },
+          {
+            "title": "Dirrel Lukye",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/fsWo5i9jFz4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bank-indonesia",
+    "name": "Bank Indonesia",
+    "categories": [
+      {
+        "id": "fpsl-2024-photography",
+        "name": "FPSL 2024 Photography",
+        "role": "Photographer",
+        "software": "Adobe Lightroom",
+        "year": "2024",
+        "description": "The “Festival Pesona Selat Lembeh” (FPSL), an annual event organized by the City Government of Bitung, North Sulawesi, Indonesia. I had the opportunity to collaborate with Bank Indonesia to capture moments from the final night of FPSL 2024.\n\nI'm Using Sony a6500 with Tamron 17-70mm f2.8",
+        "items": [
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985569316-548cb36b-e274-455a-84c9-eca955bfb515.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985580922-e0d63c2d-4d43-42c0-9449-085e96112b8c.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985596070-01b41652-bd70-46c6-89f3-8f5ed0236393.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985605404-7f185bec-df7f-46ef-b5b0-de2a94f4f3d5.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985621048-30e6b0d8-e189-4854-a121-7f02bf6924e2.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985668207-99f85dd7-d059-4c68-bc99-8f05653fc718.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985678333-3982d553-f0fa-4891-abbf-9a2eb9156347.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985719590-4d718d04-d824-430c-a4ea-6ad8bbe1e046.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985737921-643e504f-f587-4e19-b318-f41bc0c57481.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985749479-78051b33-650d-4d73-897a-99f86bac6e3b.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985758805-a984462a-82cc-42c0-adf4-9fea9d8cdfe2.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "portrait",
+            "src": "https://mp3tourl.com/images/1783985767794-30f60699-3626-49fb-99a3-5a4ec0f17b4e.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985778722-6759850b-8fd4-4f7e-a75b-87573f103031.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985787454-ae82305b-3c31-4f19-a675-706018084adb.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985795775-fc3c4f27-e195-4bce-af0e-403c64ae91bf.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "portrait",
+            "src": "https://mp3tourl.com/images/1783985809239-5f2b2a05-32b0-4ba1-a014-c8cb48200ef9.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985823315-d90c52ee-cebd-49da-ac0e-bfda3a385283.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985834251-0e0492e4-e03c-428b-b4cd-b7a321b543aa.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985842857-aa54bab6-ed84-4a73-9e58-c3fa4212aebf.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985851636-e19d1d39-0407-44d1-98fb-f56defb4e8a3.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985860080-ad253761-a238-4a12-b960-1f7fa04b4845.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985868691-29407281-dabe-47ce-9df4-12d6d4a8cdbe.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985878851-cac9ad1e-d17c-43ab-aded-db7d5904064b.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985889487-c35523e1-2063-47e5-950f-9b719114d3f9.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985898999-4b9f5a74-e07f-40b0-9f1e-d838dec94768.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985924384-127316dd-b6ab-4a98-848b-7b2b477c5d31.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985932816-769252e9-e499-4ba8-bbde-237b860a7b56.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985942833-8c24f819-6f9a-40c5-89d5-de63b33246e8.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "portrait",
+            "src": "https://mp3tourl.com/images/1783985953112-c99ee460-c4dd-4322-a099-03c087c5ea64.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985964110-47eb168b-c5b8-4be0-9007-dfef4db45a8d.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986309519-e7b7b7d3-0e41-4755-8201-0633e64fc89e.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986286659-5e795ba8-d13c-4043-887e-e28fca0a392c.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986321639-f27ef3b3-da1f-48f5-b630-47af700358e4.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986330972-21f392b9-c46f-46ae-aeae-767d1e1472ce.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986339604-e35922b8-a714-40a4-8d1b-09118813e120.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986048728-b06fc8e9-4fcf-46ca-879f-d88dbe1e8d17.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986059058-d37813cb-4be5-42fe-938a-d683558041e1.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986069215-f5eae83a-3bbf-4c26-995a-5df6cd2af85d.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986080364-e0cbdfc7-aa97-4981-820c-006edba33c94.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "portrait",
+            "src": "https://mp3tourl.com/images/1783986092058-48fb7eba-9b82-410b-8e92-c87f14d589c7.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986036273-63bc1163-6443-4e52-a44e-86b1ad9d276c.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783986019299-18bb9654-d186-4adb-b5aa-1f7d80168db9.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "portrait",
+            "src": "https://mp3tourl.com/images/1783985992166-d2bec406-4099-4c9c-951a-8892331adc5a.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985983432-4c461c03-e479-44e1-9b15-9bacb3d0dbc2.jpg"
+          },
+          {
+            "title": "FPSL 2024 - BI",
+            "type": "image",
+            "ratio": "landscape",
+            "src": "https://mp3tourl.com/images/1783985972288-1aaca8c3-b0d0-4114-bab4-6f68e1707545.jpg"
+          }
+        ]
+      },
+      {
+        "id": "bi-hijrahfest-2026",
+        "name": "HijrahFest - 2026",
+        "role": "Videographer / Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2026",
+        "description": "My Video for the 2026 HijrahFest Organized by Bank Indonesia, North Sulawesi.\n\nCanon 650D with Kit Lens",
+        "items": [
+          {
+            "title": "HIJRAH FEST 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/w2lzYr-iREE"
+          },
+          {
+            "title": "HIJRAH FEST 02",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/p-4LbgHMfPE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "the-impk-journey",
+    "name": "The IMPK Journey",
+    "categories": [
+      {
+        "id": "podcast-impk",
+        "name": "Podcast Episodes",
+        "role": "Videographer / Video Editor / Thumbnail Designer",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2026",
+        "description": "I work on the video side of the IMPK Journey Podcast, where we share stories about success and spiritual growth. My role is a bit of a mix: I handle both the videography and thumbnail design for all the episodes with white thumbnails only, while I focus on video editing for the ones with dark thumbnails.",
+        "items": [
+          {
+            "title": "PODCAST DYLAN - 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/4db4Egc0tzY?si=LIwrG500Sc69PL_9"
+          },
+          {
+            "title": "PODCAST CRISTY - 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/GTcZTsQCvvU?si=z68dcyzjDDbrB09F"
+          },
+          {
+            "title": "PODCAST CRISTY - 02",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://www.youtube.com/watch?v=lNS3ca9DgTg&t=983s"
+          },
+          {
+            "title": "PODCAST MICKY - 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://www.youtube.com/watch?v=YPrzYaQ4jto&t=1329s"
+          },
+          {
+            "title": "PODCAST MICKY - 02",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://www.youtube.com/watch?v=uiII_I-r3wc&t=38s"
+          },
+          {
+            "title": "PODCAST BARA",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/y9XOrwcZLY0?si=SiOvEMbNltrXZOaf"
+          },
+          {
+            "title": "PODCAST HARINI",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/-CaEU7tAkYQ?si=9j-LlOWxz7EBrtvY"
+          },
+          {
+            "title": "PODCAST JEMMY",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/vpXKQMBNQIc?si=ZctHBP2mz7pG--86"
+          },
+          {
+            "title": "PODCAST KINARA",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/D1EIXqTuJj8?si=sinzeWZMV8qemHxm"
+          }
+        ]
+      },
+      {
+        "id": "impk-promotion-video",
+        "name": "IMPK Promotion Video",
+        "role": "Videographer / Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2026",
+        "description": "A promotional video project for the IMPK Community, a self-development community led by Ryo Pakila.",
+        "items": [
+          {
+            "title": "VIDEO 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/G-56vwPAuCk"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "malesung-project",
+    "name": "Malesung Project",
+    "categories": [
+      {
+        "id": "cat-1783977905279",
+        "name": "Shorts Video Editing",
+        "role": "Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2024",
+        "description": "Here are some Reels editing projects I created for Malesung Project, an online news, education, and entertainment platform focused on audiences in North Sulawesi and the surrounding regions.",
+        "items": [
+          {
+            "title": "SHORTS 01",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/i81btBXSaZg"
+          },
+          {
+            "title": "SHORTS 02",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/S1R5EFzjDf4?feature=share"
+          },
+          {
+            "title": "SHORTS 03",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/5YzKpj7dht4?feature=share"
+          },
+          {
+            "title": "SHORTS 04",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/BBpoSMJmIsc?feature=share"
+          },
+          {
+            "title": "VIDEO 01",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/roPPbiNlWW0"
+          },
+          {
+            "title": "SHORTS 05",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/38y5KoM6jJo"
+          },
+          {
+            "title": "SHORTS 06",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/ApTiMABPSTw"
+          },
+          {
+            "title": "SHORTS 07",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/VpTkbKvLZ7o"
+          },
+          {
+            "title": "SHORTS 08",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/OqditZ5C2Vk?feature=share"
+          },
+          {
+            "title": "SHORTS 09",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": "https://youtube.com/shorts/9ETMVlyakqA"
+          },
+          {
+            "title": "SHORTS 10",
+            "type": "youtube",
+            "ratio": "portrait",
+            "src": " https://youtube.com/shorts/6lHoDjIf7hI"
+          }
+        ]
+      },
+      {
+        "id": "mp-feed-design-01",
+        "name": "Feed Design 01",
+        "role": "Graphic Designer",
+        "software": "Adobe Photoshop / MidJourney (AI)",
+        "year": "2024",
+        "description": "Some Design Concepts for Instagram Feed Posts, Malesung Project.",
+        "items": [
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783982896637-2ff245bb-cfc4-4aa8-9ecb-cd576ea01977.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783982979797-cb0c4ef2-1fb8-4f66-b90e-7ee12465c7c5.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783982989445-d299eba4-d4a7-4947-8808-17a7404c5b1b.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983000194-4723ca96-19c4-472b-8c39-2c5ffb539a6f.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983008498-1b851aac-a7f3-4928-88e3-b7755b2002b8.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983026574-d414b336-44b5-4c2d-b2e2-d2dfe9687a1e.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983034870-dc54955e-1d99-459d-8e74-01f7b58def7d.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983042398-17a5011e-8078-4581-9acd-a41bd6a43799.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983051271-74380199-6607-4521-95e7-ec4bd3b4d2a1.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983059472-84178715-e55b-439e-95e1-a565b1fce5db.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983068548-50768efc-a31d-411a-9733-2241146ca742.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983077575-4063267b-bd52-43b3-885c-50679c8df18c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983086813-3e80f08f-6da1-4ad3-9d0e-de9826c7b86c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983096630-f22fe9c9-f530-4b9d-8103-1ba27822349f.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983107490-534388fd-b3ec-4e0e-8d28-07e8e21515c8.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983117415-2366030d-6922-468e-bb5b-354f108b73ce.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983127307-044c77ce-642b-4f12-a6f4-e5b9ea1a2bd0.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983136487-faf40bb1-25fa-414b-870a-3f36849a0162.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983144061-abe33736-1c99-4429-8f1f-80b053b39863.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983151315-ac49a886-0322-454f-9969-1012b84a8dbf.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983158841-2ad1b20b-d65d-4800-b930-58083728edfa.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983165846-6b8ca4f8-92c0-480d-b610-f66b7ed19307.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983173020-ea6b8741-d430-40a6-bc42-612b716aaadd.jpg"
+          }
+        ]
+      },
+      {
+        "id": "mp-feed-design-02",
+        "name": "Feed Design 02",
+        "role": "Graphic Designer",
+        "software": "Adobe Photoshop / MidJourney (AI)",
+        "year": "2024",
+        "description": "Some Design Concepts for Instagram Feed Posts, Malesung Project.",
+        "items": [
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983205968-e40e6a03-2c29-4fba-8bc5-ddbf650f28f8.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983217742-3d97b80a-3729-4ba0-898e-69cdd16f2c8c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983225347-b3bf22cc-3e1c-4736-a829-b5867a5c9541.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983232769-ea99f8bd-2ef7-41e8-9c86-824abe46b0b2.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983239206-6bd55d25-e172-4b4f-84c3-e1daf0c2133c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983246269-6514e411-fd63-4efd-9dd9-ac12ced53181.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983252317-5328c6fe-af95-4dd3-a43d-42e518828d4e.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983259418-914a4b5c-cf69-4df8-a606-71d2d540e418.jpg"
+          }
+        ]
+      },
+      {
+        "id": "mp-feed-design-03",
+        "name": "Feed Design 03",
+        "role": "Graphic Designer",
+        "software": "Adobe Photoshop / MidJourney (AI)",
+        "year": "2024",
+        "description": "Some Design Concepts for Instagram Feed Posts, Malesung Project.",
+        "items": [
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983340201-71397a41-45a4-4102-ac6e-1e42907e8be3.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983357661-ea9c972c-9ab3-4e21-9f4d-3f45edac7700.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983364103-4edc3323-fb9e-4caa-a5c6-6394d2b1e796.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983370952-9e5c0cf6-ad7a-427e-a1c2-1f422e2da709.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983377682-9676a60c-144f-4078-a153-b3f810f8f29e.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983384365-08538bc5-aede-41b8-9735-c870fe8deae2.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983391845-78b1106d-0f51-45f7-837b-a199258e3bae.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983404230-614992f2-fddc-4ec1-9d3a-a7690f60a86c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983410921-ccdbca52-0e84-4e7e-891a-a6f658299dda.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983417839-7e14f899-59bf-48ab-a097-0d4de387ba5a.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983425206-0f695baa-bad0-47e1-9cae-2a7457f0f1af.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983431952-167b505e-a1af-4db3-8fec-5daaf3ce3e27.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983439890-f18cc532-66a2-4fe1-ad11-34d73861185c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983447077-7eab7594-9fb2-4e64-815c-6441144daf51.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983455009-7502c342-1343-4f8a-b9ea-c604e8db673e.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983462245-69d86ca0-f7bb-4269-a591-16ec698d290a.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983469547-83bb5227-89c4-40e0-a917-472391562b41.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983479037-ffd9c51a-73ca-44c0-a03d-612e4c7e2cd2.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983485944-7682eac1-0a6d-4fa2-b97d-03b5b7804423.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983494010-42140fe8-52ca-4394-adcc-8593d36f31f8.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983504011-914226e3-c00c-4ad0-accf-8c451cb5e97a.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983510606-44686f05-8a50-461c-b022-843128c46d49.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983517572-7e1447ea-51fd-4295-b4ed-3e9ed4b4cef3.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983524976-3dfefb77-fad4-4fc0-b4e9-56ba22ee0ddc.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983531902-84389ec0-5c3d-40fa-849e-75459ab0c5c8.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983539618-2082018e-b4d1-4873-9949-e306de5d2c95.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983547400-4fed97a0-cba1-4a64-ac83-e3a8c4a50774.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "square",
+            "src": "https://mp3tourl.com/images/1783983554706-da44718a-4a48-4554-a923-3b685ff4812a.jpg"
+          }
+        ]
+      },
+      {
+        "id": "mp-feed-design-04",
+        "name": "Feed Design 04",
+        "role": "Graphic Designer",
+        "software": "Adobe Photoshop / Nano Banana (AI)",
+        "year": "2024",
+        "description": "Some Design Concepts for Instagram Feed Posts, Malesung Project.",
+        "items": [
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983718820-2cdf7184-308a-4148-8789-951672bba433.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983727450-e71864aa-3362-4e3e-b7bb-69683a61eeac.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983736475-279ed2fd-a1a5-4ccb-885d-6dee0aa2d7db.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983744559-c073f4b0-9fd3-4cf3-98e0-995114a37cf4.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983753697-18026c72-aeff-4ae5-a870-16b1be7ee18e.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983761415-83492a75-d0af-4ef6-86c8-8b48921e47c4.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983768223-86f310f4-bf75-4e14-92c8-0b41927cffee.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983775823-0294ce06-b71a-4569-9a8b-abde7faa4bfb.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983783211-35d7ede6-d61d-4960-b39e-11b57d0d1295.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983790419-a497a033-65bf-45a2-a95a-68e6dc5a7518.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983798597-c0a97ea4-73b7-4f39-a320-c9527b61c778.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983804502-31170bbb-6122-4fd0-8c1a-a584b72b08ce.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983811330-65d2fcf8-885f-4d6b-9cd9-88d05786e23c.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983818043-4efa887b-9b3b-42b4-826e-5f99253df82d.jpg"
+          },
+          {
+            "title": "POST DESIGN",
+            "type": "image",
+            "ratio": "portrait-wide",
+            "src": "https://mp3tourl.com/images/1783983823955-33a2ab88-0795-4ab4-b656-7e0770a71b96.jpg"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "community-projects",
+    "name": "Community Projects",
+    "categories": [
+      {
+        "id": "ytc-2025",
+        "name": "YTC 2025",
+        "role": "Videographer / Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2025",
+        "description": "A Documentary Video Featuring Teenagers from GPdI VICTORY TALAWAAN Participating in the 2025 Youth and Teens Camp with the Theme “Favored.”\n\nCanon 600D with Kit Lens",
+        "items": [
+          {
+            "title": "YTC 2025",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/2gSJJl02GVA"
+          }
+        ]
+      },
+      {
+        "id": "local-church-gpvictal",
+        "name": "Local Church - GPVICTAL",
+        "role": "Videographer / Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2025",
+        "description": "Videos Documenting the Activities of the Local Church, GPdI VICTORY TALAWAAN.\n\nCanon 600D with Kit Lens",
+        "items": [
+          {
+            "title": "GOOD FRIDAY",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/tjIl16Og4TQ"
+          },
+          {
+            "title": "EASTER",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/01LcUZtlkDo"
+          }
+        ]
+      },
+      {
+        "id": "pesta-rakyat-talawaan",
+        "name": "Pesta Rakyat Talawaan",
+        "role": "Videographer / Video Editor",
+        "software": "Wondershare Filmora / Adobe Photoshop",
+        "year": "2025",
+        "description": "Documentary Video: Talawaan Village Festival, North Minahasa\n\nSony a6500 with Tamron 17-70mm f2.8",
+        "items": [
+          {
+            "title": "Pesta Rakyat",
+            "type": "youtube",
+            "ratio": "landscape",
+            "src": "https://youtu.be/BiOTVk44AI0"
+          }
+        ]
+      },
+      {
+        "id": "sendratasik-2026",
+        "name": "Sendratasik 2026 - Magnum Opus",
+        "role": "Video Editor",
+        "software": "Wondershare Filmora / Aobde Photoshop",
+        "year": "2026",
+        "description": "Project to Create a Motion Background for the Videotron at the 2026 Sendratasik Performing Arts Festival hosted by the University of Manado, with the theme “Magnum Opus.”",
+        "items": [
+          {
+            "title": "LOOP 1",
+            "type": "youtube",
+            "ratio": "wide",
+            "src": "https://youtu.be/OBfk_tIm4UQ"
+          },
+          {
+            "title": "LOOP 2",
+            "type": "youtube",
+            "ratio": "wide",
+            "src": "https://youtu.be/a519jvxWFuo"
+          },
+          {
+            "title": "LOOP 3",
+            "type": "youtube",
+            "ratio": "wide",
+            "src": "https://youtu.be/L86VyASdsOM"
+          }
+        ]
+      }
+    ]
+  }
+];
+
+    const pages = {
+      home: document.getElementById("homePage"),
+      projects:
+        document.getElementById("projectIndexPage"),
+      detail:
+        document.getElementById("projectDetailPage")
+    };
+
+    const openWorkButton =
+      document.getElementById("openWorkButton");
+
+    const openContactButton =
+      document.getElementById("openContactButton");
+
+    const projectIndex =
+      document.getElementById("projectIndex");
+
+    const categoryPanel =
+      document.getElementById("categoryPanel");
+
+    const categoryList =
+      document.getElementById("categoryList");
+
+    const galleryScroll =
+      document.getElementById("galleryScroll");
+
+    const galleryGrid =
+      document.getElementById("galleryGrid");
+
+    const mobileCategoryToggle =
+      document.getElementById(
+        "mobileCategoryToggle"
+      );
+
+    const mobileCategoryLabel =
+      document.getElementById(
+        "mobileCategoryLabel"
+      );
+
+    const mobileCategoryInfoMount =
+      document.getElementById(
+        "mobileCategoryInfoMount"
+      );
+
+    const categoryInfo =
+      document.getElementById("categoryInfo");
+
+    const categoryInfoTitle =
+      document.getElementById(
+        "categoryInfoTitle"
+      );
+
+    const categoryInfoRole =
+      document.getElementById(
+        "categoryInfoRole"
+      );
+
+    const categoryInfoSoftware =
+      document.getElementById(
+        "categoryInfoSoftware"
+      );
+
+    const categoryInfoYear =
+      document.getElementById(
+        "categoryInfoYear"
+      );
+
+    const categoryInfoDescription =
+      document.getElementById(
+        "categoryInfoDescription"
+      );
+
+    const viewer =
+      document.getElementById("viewer");
+
+    const viewerHeaderLabel =
+      document.getElementById(
+        "viewerHeaderLabel"
+      );
+
+    const viewerMediaArea =
+      document.getElementById(
+        "viewerMediaArea"
+      );
+
+    const viewerTitle =
+      document.getElementById("viewerTitle");
+
+    const viewerItemType =
+      document.getElementById(
+        "viewerItemType"
+      );
+
+    const viewerClose =
+      document.getElementById("viewerClose");
+
+    const contactModal =
+      document.getElementById("contactModal");
+
+    const contactClose =
+      document.getElementById("contactClose");
+
+    const emailLink =
+      document.getElementById("emailLink");
+
+    const instagramLink =
+      document.getElementById(
+        "instagramLink"
+      );
+
+    const cursor =
+      document.getElementById("cursor");
+
+    let currentProject = null;
+    let currentCategory = null;
+    let previouslyFocusedElement = null;
+
+    function showPage(
+      pageName,
+      updateHash = true
+    ) {
+      if (!pages[pageName]) {
+        pageName = "home";
+      }
+
+      Object.entries(pages).forEach(
+        ([name, page]) => {
+          const active = name === pageName;
+
+          page.classList.toggle(
+            "is-active",
+            active
+          );
+
+          page.setAttribute(
+            "aria-hidden",
+            String(!active)
+          );
+        }
+      );
+
+      categoryPanel.classList.remove(
+        "is-open"
+      );
+
+      mobileCategoryToggle.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+
+      if (updateHash) {
+        const hashes = {
+          home: "#home",
+          projects: "#projects",
+
+          detail: currentProject
+            ? `#project/${currentProject.id}`
+            : "#projects"
+        };
+
+        history.replaceState(
+          null,
+          "",
+          hashes[pageName]
+        );
+      }
+    }
+
+    openWorkButton.addEventListener(
+      "click",
+      () => showPage("projects")
+    );
+
+    document
+      .querySelectorAll("[data-action]")
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            const destination =
+              button.dataset.action;
+
+            if (
+              destination === "projects"
+            ) {
+              currentProject = null;
+              currentCategory = null;
+            }
+
+            showPage(destination);
+          }
+        );
+      });
+
+    function renderProjectIndex() {
+      projectIndex.replaceChildren();
+
+      PORTFOLIO_DATA.forEach(
+        (project, index) => {
+          const button =
+            document.createElement("button");
+
+          button.type = "button";
+
+          button.className =
+            "project-link interactive fade-item";
+
+          button.textContent =
+            project.name;
+
+          button.style.transitionDelay =
+            `${index * 35}ms`;
+
+          button.addEventListener(
+            "click",
+            () => openProject(project.id)
+          );
+
+          projectIndex.appendChild(button);
+        }
+      );
+
+      registerCursorTargets();
+    }
+
+    function openProject(projectId) {
+      const project =
+        PORTFOLIO_DATA.find(
+          (item) => item.id === projectId
+        );
+
+      if (!project) {
+        showPage("projects");
+        return;
+      }
+
+      currentProject = project;
+
+      renderCategories(project);
+
+      if (project.categories.length) {
+        selectCategory(
+          project.categories[0].id
+        );
+      } else {
+        galleryGrid.innerHTML = `
+          <div class="gallery-empty">
+            Belum ada kategori.
+          </div>
+        `;
+
+        categoryInfo.classList.remove(
+          "is-visible"
+        );
+      }
+
+      showPage("detail");
+    }
+
+    function renderCategories(project) {
+      categoryList.replaceChildren();
+
+      project.categories.forEach(
+        (category) => {
+          const button =
+            document.createElement("button");
+
+          button.type = "button";
+
+          button.className =
+            "category-button interactive";
+
+          button.dataset.categoryId =
+            category.id;
+
+          button.textContent =
+            category.name;
+
+          button.addEventListener(
+            "click",
+            () => {
+              selectCategory(category.id);
+
+              categoryPanel.classList.remove(
+                "is-open"
+              );
+
+              mobileCategoryToggle.setAttribute(
+                "aria-expanded",
+                "false"
+              );
+            }
+          );
+
+          categoryList.appendChild(button);
+        }
+      );
+
+      registerCursorTargets();
+    }
+
+    function selectCategory(categoryId) {
+      if (!currentProject) {
+        return;
+      }
+
+      const category =
+        currentProject.categories.find(
+          (item) =>
+            item.id === categoryId
+        );
+
+      if (!category) {
+        return;
+      }
+
+      currentCategory = category;
+
+      mobileCategoryLabel.textContent =
+        category.name;
+
+      document
+        .querySelectorAll(
+          ".category-button"
+        )
+        .forEach((button) => {
+          const active =
+            button.dataset.categoryId ===
+            categoryId;
+
+          button.classList.toggle(
+            "is-active",
+            active
+          );
+
+          button.setAttribute(
+            "aria-current",
+            active ? "true" : "false"
+          );
+        });
+
+      renderCategoryInfo(category);
+
+      galleryScroll.scrollTop = 0;
+
+      renderGallery(category.items);
+    }
+
+    function renderCategoryInfo(category) {
+      categoryInfo.classList.remove(
+        "is-visible"
+      );
+
+      categoryInfoTitle.textContent =
+        category.name ||
+        "Untitled Project";
+
+      categoryInfoRole.textContent =
+        category.role || "—";
+
+      categoryInfoSoftware.textContent =
+        category.software || "—";
+
+      categoryInfoYear.textContent =
+        category.year || "—";
+
+      categoryInfoDescription.textContent =
+        category.description ||
+        "Deskripsi belum ditambahkan.";
+
+      placeCategoryInfo();
+
+      requestAnimationFrame(() => {
+        categoryInfo.classList.add(
+          "is-visible"
+        );
+      });
+    }
+
+    function placeCategoryInfo() {
+      const mobile =
+        window.matchMedia(
+          "(max-width: 820px)"
+        ).matches;
+
+      if (mobile) {
+        mobileCategoryInfoMount.appendChild(
+          categoryInfo
+        );
+      } else {
+        categoryPanel.appendChild(
+          categoryInfo
+        );
+      }
+    }
+
+    window.addEventListener(
+      "resize",
+      placeCategoryInfo
+    );
+
+    function renderGallery(items) {
+      galleryGrid.replaceChildren();
+
+      if (!items || !items.length) {
+        galleryGrid.innerHTML = `
+          <div class="gallery-empty">
+            Belum ada karya.
+          </div>
+        `;
+
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const card =
+          document.createElement("article");
+
+        card.className =
+          "gallery-card interactive media-trigger";
+
+        card.dataset.ratio =
+          item.ratio || "square";
+
+        card.style.animationDelay =
+          `${Math.min(
+            index * 45,
+            360
+          )}ms`;
+
+        card.tabIndex = 0;
+
+        card.setAttribute(
+          "role",
+          "button"
+        );
+
+        card.setAttribute(
+          "aria-label",
+          `Open ${item.title}`
+        );
+
+        const media =
+          item.type === "youtube" ||
+          item.type === "video"
+            ? createVideoThumbnail(item)
+            : createImage(item);
+
+        card.appendChild(media);
+
+        if (
+          item.type === "youtube" ||
+          item.type === "video"
+        ) {
+          const playIcon =
+            document.createElement("span");
+
+          playIcon.className = "play-icon";
+
+          playIcon.setAttribute(
+            "aria-hidden",
+            "true"
+          );
+
+          card.appendChild(playIcon);
+        }
+
+        const info =
+          document.createElement("div");
+
+        info.className =
+          "gallery-card-info";
+
+        const title =
+          document.createElement("span");
+
+        title.className =
+          "gallery-card-title";
+
+        title.textContent = item.title;
+
+        const type =
+          document.createElement("span");
+
+        type.className =
+          "gallery-card-type";
+
+        type.textContent =
+          item.type === "youtube"
+            ? "video"
+            : item.type;
+
+        info.append(title, type);
+        card.appendChild(info);
+
+        card.addEventListener(
+          "click",
+          () => openViewer(item)
+        );
+
+        card.addEventListener(
+          "keydown",
+          (event) => {
+            if (
+              event.key === "Enter" ||
+              event.key === " "
+            ) {
+              event.preventDefault();
+              openViewer(item);
+            }
+          }
+        );
+
+        galleryGrid.appendChild(card);
+      });
+
+      registerCursorTargets();
+    }
+
+    function createImage(item) {
+      const image =
+        document.createElement("img");
+
+      image.src = item.src;
+      image.alt = item.title;
+      image.loading = "lazy";
+      image.decoding = "async";
+
+      image.addEventListener(
+        "error",
+        () => {
+          image.onerror = null;
+
+          image.src =
+            "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80";
+        }
+      );
+
+      return image;
+    }
+
+    function createVideoThumbnail(item) {
+      const image =
+        document.createElement("img");
+
+      let poster = item.poster || "";
+
+      if (
+        !poster &&
+        item.type === "youtube"
+      ) {
+        const videoId =
+          extractYouTubeId(item.src);
+
+        if (videoId) {
+          poster =
+            `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+        }
+      }
+
+      image.src =
+        poster ||
+        "https://www.image2url.com/r2/default/images/1783993247149-9cacd6ad-c2cc-4316-8d51-f9159215b9c7.jpg";
+
+      image.alt =
+        `${item.title} video thumbnail`;
+
+      image.loading = "lazy";
+
+      image.addEventListener(
+        "error",
+        () => {
+          const videoId =
+            extractYouTubeId(item.src);
+
+          if (
+            videoId &&
+            !image.dataset.usedFallback
+          ) {
+            image.dataset.usedFallback =
+              "true";
+
+            image.src =
+              `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+            return;
+          }
+
+          image.onerror = null;
+
+          image.src =
+            "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=1200&q=80";
+        }
+      );
+
+      return image;
+    }
+
+    function extractYouTubeId(input) {
+      if (!input) {
+        return null;
+      }
+
+      const raw =
+        String(input).trim();
+
+      if (
+        /^[a-zA-Z0-9_-]{11}$/.test(raw)
+      ) {
+        return raw;
+      }
+
+      try {
+        const url =
+          new URL(
+            raw,
+            window.location.origin
+          );
+
+        const hostname =
+          url.hostname
+            .replace(/^www\./, "")
+            .replace(/^m\./, "");
+
+        if (hostname === "youtu.be") {
+          return (
+            url.pathname
+              .split("/")
+              .filter(Boolean)[0] ||
+            null
+          );
+        }
+
+        if (
+          hostname === "youtube.com" ||
+          hostname ===
+            "youtube-nocookie.com"
+        ) {
+          if (url.pathname === "/watch") {
+            return (
+              url.searchParams.get("v") ||
+              null
+            );
+          }
+
+          const parts =
+            url.pathname
+              .split("/")
+              .filter(Boolean);
+
+          if (
+            [
+              "embed",
+              "shorts",
+              "live"
+            ].includes(parts[0])
+          ) {
+            return parts[1] || null;
+          }
+        }
+      } catch {}
+
+      const match = raw.match(
+        /(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/))([a-zA-Z0-9_-]{11})/
+      );
+
+      return match ? match[1] : null;
+    }
+
+    function createYouTubeEmbedURL(input) {
+      const videoId =
+        extractYouTubeId(input);
+
+      if (!videoId) {
+        return null;
+      }
+
+      const params =
+        new URLSearchParams({
+          autoplay: "1",
+          rel: "0",
+          modestbranding: "1",
+          playsinline: "1"
+        });
+
+      return (
+        "https://www.youtube-nocookie.com/embed/" +
+        encodeURIComponent(videoId) +
+        "?" +
+        params.toString()
+      );
+    }
+
+    function openViewer(item) {
+      previouslyFocusedElement =
+        document.activeElement;
+
+      viewerHeaderLabel.textContent =
+        currentProject
+          ? currentProject.name
+          : "Project preview";
+
+      viewerTitle.textContent =
+        item.title || "Untitled";
+
+      viewerItemType.textContent = [
+        currentCategory?.name,
+
+        item.type === "youtube"
+          ? "Video"
+          : "Image"
+      ]
+        .filter(Boolean)
+        .join(" / ");
+
+      viewerMediaArea.replaceChildren();
+
+      const shell =
+        document.createElement("div");
+
+      shell.className =
+        "viewer-media-shell";
+
+      shell.dataset.ratio =
+        item.ratio || "landscape";
+
+      if (item.type === "youtube") {
+        const embedURL =
+          createYouTubeEmbedURL(
+            item.src
+          );
+
+        if (!embedURL) {
+          renderViewerError(
+            shell,
+            "URL YouTube belum valid. Ganti VIDEO_ID dengan ID atau URL YouTube."
+          );
+        } else {
+          const iframe =
+            document.createElement(
+              "iframe"
+            );
+
+          iframe.src = embedURL;
+          iframe.title = item.title;
+
+          iframe.allow =
+            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+
+          iframe.allowFullscreen = true;
+
+          iframe.referrerPolicy =
+            "strict-origin-when-cross-origin";
+
+          shell.appendChild(iframe);
+        }
+      } else if (
+        item.type === "video"
+      ) {
+        const video =
+          document.createElement("video");
+
+        video.src = item.src;
+        video.poster =
+          item.poster || "";
+
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+
+        video.addEventListener(
+          "error",
+          () => {
+            shell.replaceChildren();
+
+            renderViewerError(
+              shell,
+              "Video tidak dapat dimuat."
+            );
+          }
+        );
+
+        shell.appendChild(video);
+      } else {
+        const image =
+          document.createElement("img");
+
+        image.src = item.src;
+        image.alt = item.title;
+
+        image.addEventListener(
+          "error",
+          () => {
+            shell.replaceChildren();
+
+            renderViewerError(
+              shell,
+              "Gambar tidak dapat dimuat."
+            );
+          }
+        );
+
+        shell.appendChild(image);
+      }
+
+      viewerMediaArea.appendChild(shell);
+
+      viewer.classList.add("is-open");
+
+      viewer.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+      viewerClose.focus();
+    }
+
+    function renderViewerError(
+      container,
+      message
+    ) {
+      const error =
+        document.createElement("div");
+
+      error.className = "viewer-error";
+      error.textContent = message;
+
+      container.appendChild(error);
+    }
+
+    function closeViewer() {
+      const video =
+        viewerMediaArea.querySelector(
+          "video"
+        );
+
+      if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      }
+
+      viewerMediaArea.replaceChildren();
+
+      viewer.classList.remove("is-open");
+
+      viewer.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      restorePreviousFocus();
+    }
+
+    viewerClose.addEventListener(
+      "click",
+      closeViewer
+    );
+
+    viewer.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === viewer) {
+          closeViewer();
+        }
+      }
+    );
+
+    function initializeContact() {
+      emailLink.textContent =
+        CONTACT_DATA.email;
+
+      emailLink.href =
+        `mailto:${CONTACT_DATA.email}`;
+
+      instagramLink.textContent =
+        CONTACT_DATA.instagramUsername;
+
+      instagramLink.href =
+        CONTACT_DATA.instagramURL;
+    }
+
+    function openContact() {
+      previouslyFocusedElement =
+        document.activeElement;
+
+      contactModal.classList.add(
+        "is-open"
+      );
+
+      contactModal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+      contactClose.focus();
+    }
+
+    function closeContact() {
+      contactModal.classList.remove(
+        "is-open"
+      );
+
+      contactModal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      restorePreviousFocus();
+    }
+
+    openContactButton.addEventListener(
+      "click",
+      openContact
+    );
+
+    contactClose.addEventListener(
+      "click",
+      closeContact
+    );
+
+    contactModal.addEventListener(
+      "click",
+      (event) => {
+        if (
+          event.target === contactModal
+        ) {
+          closeContact();
+        }
+      }
+    );
+
+    function restorePreviousFocus() {
+      if (
+        previouslyFocusedElement &&
+        document.contains(
+          previouslyFocusedElement
+        )
+      ) {
+        previouslyFocusedElement.focus();
+      }
+    }
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "Escape") {
+          return;
+        }
+
+        if (
+          contactModal.classList.contains(
+            "is-open"
+          )
+        ) {
+          closeContact();
+          return;
+        }
+
+        if (
+          viewer.classList.contains(
+            "is-open"
+          )
+        ) {
+          closeViewer();
+          return;
+        }
+
+        if (
+          categoryPanel.classList.contains(
+            "is-open"
+          )
+        ) {
+          categoryPanel.classList.remove(
+            "is-open"
+          );
+
+          mobileCategoryToggle.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+        }
+      }
+    );
+
+    mobileCategoryToggle.addEventListener(
+      "click",
+      () => {
+        const willOpen =
+          !categoryPanel.classList.contains(
+            "is-open"
+          );
+
+        categoryPanel.classList.toggle(
+          "is-open",
+          willOpen
+        );
+
+        mobileCategoryToggle.setAttribute(
+          "aria-expanded",
+          String(willOpen)
+        );
+      }
+    );
+
+    let cursorX =
+      window.innerWidth / 2;
+
+    let cursorY =
+      window.innerHeight / 2;
+
+    let renderedCursorX = cursorX;
+    let renderedCursorY = cursorY;
+
+    window.addEventListener(
+      "mousemove",
+      (event) => {
+        cursorX = event.clientX;
+        cursorY = event.clientY;
+
+        cursor.classList.add(
+          "is-visible"
+        );
+      }
+    );
+
+    document.documentElement.addEventListener(
+      "mouseleave",
+      () => {
+        cursor.classList.remove(
+          "is-visible"
+        );
+      }
+    );
+
+    function animateCursor() {
+      renderedCursorX +=
+        (cursorX - renderedCursorX) *
+        0.18;
+
+      renderedCursorY +=
+        (cursorY - renderedCursorY) *
+        0.18;
+
+      cursor.style.transform =
+        `translate3d(${renderedCursorX}px, ${renderedCursorY}px, 0)` +
+        " translate(-50%, -50%)";
+
+      requestAnimationFrame(
+        animateCursor
+      );
+    }
+
+    function registerCursorTargets() {
+      document
+        .querySelectorAll(".interactive")
+        .forEach((element) => {
+          if (
+            element.dataset
+              .cursorRegistered === "true"
+          ) {
+            return;
+          }
+
+          element.dataset.cursorRegistered =
+            "true";
+
+          element.addEventListener(
+            "mouseenter",
+            () => {
+              cursor.classList.add(
+                "is-hovering"
+              );
+
+              if (
+                element.classList.contains(
+                  "media-trigger"
+                )
+              ) {
+                cursor.classList.add(
+                  "is-viewing"
+                );
+
+                cursor.dataset.label =
+                  "VIEW";
+              }
+            }
+          );
+
+          element.addEventListener(
+            "mouseleave",
+            () => {
+              cursor.classList.remove(
+                "is-hovering",
+                "is-viewing"
+              );
+
+              cursor.dataset.label = "";
+            }
+          );
+        });
+    }
+
+    function handleInitialRoute() {
+      const hash =
+        window.location.hash;
+
+      if (
+        hash.startsWith("#project/")
+      ) {
+        const projectId =
+          hash.replace(
+            "#project/",
+            ""
+          );
+
+        const exists =
+          PORTFOLIO_DATA.some(
+            (project) =>
+              project.id === projectId
+          );
+
+        if (exists) {
+          openProject(projectId);
+          return;
+        }
+      }
+
+      if (hash === "#projects") {
+        showPage("projects", false);
+        return;
+      }
+
+      showPage("home", false);
+    }
+
+    initializeContact();
+    renderProjectIndex();
+    registerCursorTargets();
+    animateCursor();
+    handleInitialRoute();
+  </script>
+</body>
+</html>
