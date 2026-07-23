@@ -15,6 +15,28 @@
 
   <title>Edward Katuuk</title>
 
+  <meta name="theme-color" content="#050505">
+
+  <script>
+    (() => {
+      const allowedThemes = new Set([
+        "dark", "light", "blue", "red",
+        "purple", "pink", "forest"
+      ]);
+
+      let savedTheme = "dark";
+
+      try {
+        const storedTheme = localStorage.getItem("portfolio-theme");
+        if (allowedThemes.has(storedTheme)) savedTheme = storedTheme;
+      } catch (error) {
+        /* Storage may be blocked; dark remains the safe default. */
+      }
+
+      document.documentElement.dataset.theme = savedTheme;
+    })();
+  </script>
+
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 
   <link rel="preconnect" href="https://mp3tourl.com" crossorigin>
@@ -1616,10 +1638,1606 @@
         transition-duration: 1ms !important;
       }
     }
+
+
+    /* =========================================================
+       MOTION SYSTEM — ENHANCED EDITION
+       ========================================================== */
+
+    :root {
+      --motion-fast: 260ms;
+      --motion-medium: 560ms;
+      --motion-slow: 900ms;
+      --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-expressive: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    #app::before,
+    #app::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    #app::before {
+      z-index: 0;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(255,255,255,0.045), transparent 29%),
+        radial-gradient(circle at 82% 76%, rgba(255,255,255,0.025), transparent 32%);
+      animation: ambient-drift 16s ease-in-out infinite alternate;
+    }
+
+    #app::after {
+      z-index: 90;
+      opacity: 0.045;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(circle at center, #000 0%, transparent 72%);
+    }
+
+    @keyframes ambient-drift {
+      from { transform: scale(1) translate3d(-1%, -1%, 0); }
+      to { transform: scale(1.08) translate3d(1%, 1%, 0); }
+    }
+
+    .page {
+      z-index: 1;
+      clip-path: inset(3% 0 0 0 round 2px);
+      transform: translate3d(0, 34px, 0) scale(0.985);
+      filter: blur(12px) saturate(0.8);
+      transition:
+        opacity 620ms var(--ease-cinematic),
+        transform 760ms var(--ease-cinematic),
+        filter 680ms var(--ease-cinematic),
+        clip-path 760ms var(--ease-cinematic),
+        visibility 760ms;
+    }
+
+    .page.is-active {
+      clip-path: inset(0 round 0);
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: blur(0) saturate(1);
+    }
+
+    html.is-transitioning,
+    html.is-transitioning * {
+      cursor: none !important;
+    }
+
+    html.is-transitioning .page {
+      pointer-events: none !important;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 680ms;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-cinematic);
+    }
+
+    ::view-transition-old(root) { z-index: 1; }
+    ::view-transition-new(root) { z-index: 2; }
+
+    html[data-nav-direction="forward"]::view-transition-old(root) {
+      animation-name: route-out-forward;
+    }
+
+    html[data-nav-direction="forward"]::view-transition-new(root) {
+      animation-name: route-in-forward;
+    }
+
+    html[data-nav-direction="back"]::view-transition-old(root) {
+      animation-name: route-out-back;
+    }
+
+    html[data-nav-direction="back"]::view-transition-new(root) {
+      animation-name: route-in-back;
+    }
+
+    @keyframes route-out-forward {
+      to {
+        opacity: 0;
+        transform: scale(0.965) translate3d(0, -22px, 0);
+        filter: blur(14px);
+      }
+    }
+
+    @keyframes route-in-forward {
+      from {
+        opacity: 0;
+        transform: scale(1.025) translate3d(0, 32px, 0);
+        filter: blur(16px);
+        clip-path: inset(7% 0 0 0);
+      }
+    }
+
+    @keyframes route-out-back {
+      to {
+        opacity: 0;
+        transform: scale(1.02) translate3d(0, 28px, 0);
+        filter: blur(14px);
+      }
+    }
+
+    @keyframes route-in-back {
+      from {
+        opacity: 0;
+        transform: scale(0.97) translate3d(0, -22px, 0);
+        filter: blur(14px);
+      }
+    }
+
+    .cursor {
+      view-transition-name: none;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .cursor::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transform: translate(-50%, -50%);
+      transition: opacity 200ms ease, transform 300ms var(--ease-spring);
+    }
+
+    .cursor.is-hovering::before {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .home-page::before {
+      background:
+        radial-gradient(
+          560px circle at var(--spot-x) var(--spot-y),
+          rgba(255, 255, 255, 0.075),
+          transparent 68%
+        );
+    }
+
+    .home-composition {
+      perspective: 1200px;
+    }
+
+    .work-button {
+      --press-scale: 1;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.015);
+    }
+
+    .work-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0;
+      background:
+        radial-gradient(circle at var(--button-x, 50%) var(--button-y, 50%), rgba(255,255,255,0.22), transparent 34%);
+      transition: opacity 420ms var(--ease);
+      pointer-events: none;
+    }
+
+    .work-button:hover::after,
+    .work-button:focus-visible::after {
+      opacity: 1;
+    }
+
+    .work-button-inner {
+      transition: transform 500ms var(--ease-cinematic);
+      transform: translate3d(var(--mag-x, 0px), var(--mag-y, 0px), 0) scale(var(--press-scale));
+      will-change: transform;
+    }
+
+    .work-button:active {
+      --press-scale: 0.975;
+    }
+
+    .work-button-line {
+      position: relative;
+      transition: transform 620ms var(--ease-cinematic);
+    }
+
+    .work-button:hover .work-button-line:nth-child(1),
+    .work-button:focus-visible .work-button-line:nth-child(1) {
+      transform: translateX(10px);
+    }
+
+    .work-button:hover .work-button-line:nth-child(2),
+    .work-button:focus-visible .work-button-line:nth-child(2) {
+      transform: translateX(22px);
+      transition-delay: 55ms;
+    }
+
+    .portrait-frame {
+      isolation: isolate;
+      transition: transform 650ms var(--ease-cinematic), background-color 400ms var(--ease);
+    }
+
+    .portrait-frame::before,
+    .portrait-frame::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .portrait-frame::before {
+      inset: 10px;
+      z-index: 2;
+      border: 1px solid rgba(255,255,255,0.14);
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 450ms var(--ease), transform 600ms var(--ease-cinematic);
+    }
+
+    .portrait-frame::after {
+      inset: 10px;
+      z-index: 3;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.2) 50%, transparent 65%);
+      transform: translateX(-130%);
+    }
+
+    .portrait-frame:hover {
+      transform: translateY(-5px);
+      background: #202020;
+    }
+
+    .portrait-frame:hover::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .portrait-frame:hover::after {
+      transform: translateX(130%);
+      transition: transform 950ms var(--ease-cinematic);
+    }
+
+    .intro-name {
+      position: relative;
+    }
+
+    .intro-name::after {
+      content: "";
+      display: block;
+      width: 28px;
+      height: 1px;
+      margin-top: 14px;
+      background: rgba(255,255,255,0.42);
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 800ms var(--ease-cinematic) 420ms;
+    }
+
+    .home-page.is-active .intro-name::after {
+      transform: scaleX(1);
+    }
+
+    .project-index-wrap {
+      counter-reset: portfolio-project;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: baseline;
+      gap: clamp(15px, 1.8vw, 28px);
+      overflow: hidden;
+      padding: 3px 10px;
+    }
+
+    .project-link::before {
+      content: attr(data-index);
+      color: #595959;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      transform: translateY(-0.2em);
+      transition: color 300ms var(--ease), transform 400ms var(--ease-spring);
+    }
+
+    .project-link:hover::before,
+    .project-link:focus-visible::before {
+      color: #fff;
+      transform: translate(4px, -0.2em);
+    }
+
+    .project-link::after {
+      bottom: 0;
+      height: 1px;
+      opacity: 0.7;
+    }
+
+    .project-link:focus-visible,
+    .category-button:focus-visible,
+    .back-button:focus-visible,
+    .viewer-close:focus-visible,
+    .contact-close:focus-visible,
+    .contact-link:focus-visible {
+      outline: 1px solid rgba(255,255,255,0.8);
+      outline-offset: 7px;
+    }
+
+    .project-detail-page.is-active .category-button {
+      animation: category-enter 720ms var(--ease-cinematic) both;
+      animation-delay: calc(var(--category-index, 0) * 55ms + 120ms);
+    }
+
+    @keyframes category-enter {
+      from {
+        opacity: 0;
+        transform: translate3d(-24px, 18px, 0);
+        filter: blur(7px);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        filter: blur(0);
+      }
+    }
+
+    .category-info.is-visible {
+      animation: info-in-enhanced 650ms var(--ease-cinematic) both;
+    }
+
+    @keyframes info-in-enhanced {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 24px, 0);
+        filter: blur(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        filter: blur(0);
+      }
+    }
+
+    .gallery-card {
+      --card-rotate-x: 0deg;
+      --card-rotate-y: 0deg;
+      clip-path: inset(10% 0 0 0);
+      filter: blur(8px) saturate(0.72);
+      transform-origin: center;
+      transition:
+        opacity 780ms var(--ease-cinematic),
+        transform 850ms var(--ease-cinematic),
+        filter 850ms var(--ease-cinematic),
+        clip-path 850ms var(--ease-cinematic),
+        box-shadow 420ms var(--ease);
+    }
+
+    .gallery-card.is-visible {
+      clip-path: inset(0);
+      filter: blur(0) saturate(1);
+    }
+
+    .gallery-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0;
+      background: radial-gradient(circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.16), transparent 32%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      transition: opacity 380ms var(--ease);
+    }
+
+    .gallery-card:hover {
+      z-index: 4;
+      transform: perspective(1000px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) translateY(-5px) scale(1.012);
+      box-shadow: 0 28px 75px rgba(0, 0, 0, 0.62);
+    }
+
+    .gallery-card:hover::after {
+      opacity: 1;
+    }
+
+    .gallery-card img,
+    .gallery-card video {
+      filter: grayscale(0.14) contrast(1.02);
+    }
+
+    .gallery-card:hover img,
+    .gallery-card:hover video {
+      filter: brightness(0.7) grayscale(0) contrast(1.06);
+      transform: scale(1.055);
+    }
+
+    .gallery-card-info {
+      z-index: 4;
+      padding: 22px;
+      transform: translateY(18px);
+      transition: opacity 420ms var(--ease), transform 520ms var(--ease-cinematic);
+    }
+
+    .play-icon {
+      z-index: 5;
+      filter: drop-shadow(0 7px 18px rgba(0,0,0,0.35));
+      transition: transform 500ms var(--ease-spring), border-left-color 350ms var(--ease);
+    }
+
+    .gallery-card:hover .play-icon {
+      transform: translate(-42%, -50%) scale(1.16);
+      border-left-color: rgba(255,255,255,0.85);
+    }
+
+    .viewer {
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255,255,255,0.055), transparent 38%),
+        rgba(0, 0, 0, 0.94);
+    }
+
+    .viewer-media-shell {
+      clip-path: inset(5% round 3px);
+      filter: blur(12px);
+      transition:
+        opacity 520ms var(--ease-cinematic) 60ms,
+        transform 680ms var(--ease-cinematic) 60ms,
+        filter 680ms var(--ease-cinematic) 60ms,
+        clip-path 680ms var(--ease-cinematic) 60ms;
+    }
+
+    .viewer.is-open .viewer-media-shell {
+      clip-path: inset(0 round 0);
+      filter: blur(0);
+    }
+
+    .viewer-header::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      margin: 0 8px;
+      background: rgba(255,255,255,0.14);
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 700ms var(--ease-cinematic) 180ms;
+    }
+
+    .viewer.is-open .viewer-header::after {
+      transform: scaleX(1);
+    }
+
+    .contact-card {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: 0 35px 100px rgba(0,0,0,0.55);
+    }
+
+    .contact-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle, rgba(255,255,255,0.055), transparent 58%);
+      animation: contact-glow 9s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .contact-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes contact-glow {
+      from { transform: translate3d(-8%, -5%, 0); }
+      to { transform: translate3d(10%, 8%, 0); }
+    }
+
+    @media (max-width: 820px) {
+      #app::after {
+        background-size: 44px 44px;
+        opacity: 0.03;
+      }
+
+      .category-list {
+        display: flex;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition:
+          max-height 620ms var(--ease-cinematic),
+          padding 620ms var(--ease-cinematic),
+          opacity 320ms var(--ease),
+          transform 520ms var(--ease-cinematic),
+          visibility 620ms;
+      }
+
+      .category-panel.is-open .category-list {
+        display: flex;
+        max-height: calc(100dvh - 65px);
+        padding-top: 8px;
+        padding-bottom: 25px;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .gallery-card {
+        clip-path: inset(5% 0 0 0);
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .gallery-card:hover {
+        transform: translateY(0) scale(1);
+      }
+
+      .gallery-card::after,
+      .work-button::after {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #app::before,
+      .contact-card::before {
+        animation: none !important;
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 1ms !important;
+      }
+
+      .page,
+      .gallery-card,
+      .viewer-media-shell,
+      .work-button-inner,
+      .work-button-line {
+        clip-path: none !important;
+        filter: none !important;
+        transform: none !important;
+      }
+    }
+
+
+    /* =========================================================
+       TARGETED LAYOUT FIXES — v2.1
+       ========================================================== */
+
+    /* Give large glyphs enough breathing room so MY / WORK never
+       gets clipped by its own line box or by the magnetic motion. */
+    .work-button-inner {
+      overflow: visible;
+      padding-inline:
+        clamp(24px, 13cqw, 46px);
+    }
+
+    .work-button-label {
+      width: max-content;
+      max-width: calc(100% - 4px);
+      overflow: visible;
+      padding: 0.12em 0.14em 0.16em 0.04em;
+      margin: -0.12em -0.14em -0.16em -0.04em;
+      font-size: clamp(38px, 19.5cqw, 66px);
+      line-height: 0.92;
+    }
+
+    .work-button-line {
+      max-width: 100%;
+      line-height: inherit;
+    }
+
+    /* Reserve a real top bar inside the contact card. This keeps
+       Close away from the eyebrow even on short or narrow screens. */
+    .contact-card {
+      padding-top: clamp(82px, 7vw, 98px);
+    }
+
+    .contact-close {
+      position: absolute;
+      z-index: 3;
+      top: 22px;
+      right: 22px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .contact-close:hover,
+    .contact-close:focus-visible {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.085);
+    }
+
+    .contact-eyebrow {
+      padding-right: 112px;
+    }
+
+    /* The old solid-black category panel hid the global ambient
+       layer. Keep the desktop surface transparent so both sides of
+       the project detail page feel like one continuous canvas. */
+    .project-detail-page,
+    .detail-layout,
+    .category-panel,
+    .category-info {
+      background: transparent;
+    }
+
+    .category-panel {
+      isolation: isolate;
+    }
+
+    .category-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0 -28px 0 calc(var(--page-x) * -1);
+      z-index: -1;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.18) 0%,
+        rgba(0, 0, 0, 0.08) 64%,
+        transparent 100%
+      );
+      pointer-events: none;
+    }
+
+    @media (max-width: 820px) {
+      .work-button-inner {
+        overflow: visible;
+        padding-inline: clamp(26px, 11cqw, 44px);
+      }
+
+      .work-button-label {
+        max-width: calc(100% - 6px);
+        font-size: clamp(42px, 18cqw, 68px);
+      }
+
+      .contact-card {
+        padding: 82px 25px 30px;
+      }
+
+      .contact-close {
+        top: 18px;
+        right: 18px;
+      }
+
+      .contact-eyebrow {
+        padding-right: 0;
+      }
+
+      .category-panel {
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(18px) saturate(1.05);
+        -webkit-backdrop-filter: blur(18px) saturate(1.05);
+      }
+
+      .category-panel::after {
+        display: none;
+      }
+
+      .category-list {
+        background: rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(18px) saturate(1.05);
+        -webkit-backdrop-filter: blur(18px) saturate(1.05);
+      }
+
+      .category-info {
+        background:
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.34),
+            rgba(0, 0, 0, 0.08) 70%,
+            transparent
+          );
+      }
+
+      .back-button {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(10, 10, 10, 0.68);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+    }
+
+    @media (max-width: 390px) {
+      .work-button-label {
+        font-size: clamp(38px, 17.5cqw, 58px);
+      }
+
+      .contact-card {
+        padding-inline: 20px;
+      }
+    }
+
+
+    /* =========================================================
+       THEME LAB + MINIMAL LOADER — v3.0
+       ========================================================== */
+
+    :root {
+      --background: #050505;
+      --foreground: #f5f5f5;
+      --muted: #858585;
+      --panel: #171717;
+      --surface: #111111;
+      --surface-strong: #0a0a0a;
+      --border: rgba(255, 255, 255, 0.13);
+      --accent: #f5f5f5;
+      --accent-contrast: #050505;
+      --accent-rgb: 245, 245, 245;
+      --grid-rgb: 255, 255, 255;
+      --shadow-rgb: 0, 0, 0;
+      --glass: rgba(5, 5, 5, 0.70);
+      --glass-strong: rgba(5, 5, 5, 0.88);
+      --modal-overlay: rgba(0, 0, 0, 0.88);
+      --viewer-overlay: rgba(0, 0, 0, 0.94);
+      --selection-bg: #f5f5f5;
+      --selection-fg: #050505;
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"] {
+      --background: #f2f0ea;
+      --foreground: #161616;
+      --muted: #6e6c67;
+      --panel: #e4e1d9;
+      --surface: #ebe8e1;
+      --surface-strong: #f8f7f3;
+      --border: rgba(22, 22, 22, 0.14);
+      --accent: #161616;
+      --accent-contrast: #f8f7f3;
+      --accent-rgb: 22, 22, 22;
+      --grid-rgb: 22, 22, 22;
+      --shadow-rgb: 45, 40, 30;
+      --glass: rgba(242, 240, 234, 0.74);
+      --glass-strong: rgba(242, 240, 234, 0.92);
+      --modal-overlay: rgba(235, 232, 225, 0.86);
+      --viewer-overlay: rgba(235, 232, 225, 0.94);
+      --selection-bg: #161616;
+      --selection-fg: #f8f7f3;
+      color-scheme: light;
+    }
+
+    html[data-theme="blue"] {
+      --background: #06101e;
+      --foreground: #eef6ff;
+      --muted: #8498b0;
+      --panel: #0d2037;
+      --surface: #0a192c;
+      --surface-strong: #061222;
+      --border: rgba(132, 190, 255, 0.18);
+      --accent: #68b8ff;
+      --accent-contrast: #04101e;
+      --accent-rgb: 104, 184, 255;
+      --grid-rgb: 104, 184, 255;
+      --shadow-rgb: 0, 4, 16;
+      --glass: rgba(6, 16, 30, 0.72);
+      --glass-strong: rgba(6, 16, 30, 0.90);
+      --modal-overlay: rgba(3, 10, 20, 0.88);
+      --viewer-overlay: rgba(3, 10, 20, 0.95);
+      --selection-bg: #68b8ff;
+      --selection-fg: #04101e;
+    }
+
+    html[data-theme="red"] {
+      --background: #180708;
+      --foreground: #fff1f1;
+      --muted: #ad8082;
+      --panel: #2a0d10;
+      --surface: #220a0c;
+      --surface-strong: #160608;
+      --border: rgba(255, 111, 118, 0.18);
+      --accent: #ff626a;
+      --accent-contrast: #180708;
+      --accent-rgb: 255, 98, 106;
+      --grid-rgb: 255, 98, 106;
+      --shadow-rgb: 20, 0, 2;
+      --glass: rgba(24, 7, 8, 0.72);
+      --glass-strong: rgba(24, 7, 8, 0.91);
+      --modal-overlay: rgba(18, 3, 5, 0.88);
+      --viewer-overlay: rgba(18, 3, 5, 0.95);
+      --selection-bg: #ff626a;
+      --selection-fg: #180708;
+    }
+
+    html[data-theme="purple"] {
+      --background: #12091f;
+      --foreground: #f8f0ff;
+      --muted: #9f89b2;
+      --panel: #211333;
+      --surface: #1a0f29;
+      --surface-strong: #10071c;
+      --border: rgba(192, 132, 255, 0.19);
+      --accent: #bd7dff;
+      --accent-contrast: #12091f;
+      --accent-rgb: 189, 125, 255;
+      --grid-rgb: 189, 125, 255;
+      --shadow-rgb: 10, 0, 20;
+      --glass: rgba(18, 9, 31, 0.72);
+      --glass-strong: rgba(18, 9, 31, 0.91);
+      --modal-overlay: rgba(12, 4, 22, 0.88);
+      --viewer-overlay: rgba(12, 4, 22, 0.95);
+      --selection-bg: #bd7dff;
+      --selection-fg: #12091f;
+    }
+
+    html[data-theme="pink"] {
+      --background: #1b0814;
+      --foreground: #fff0f8;
+      --muted: #b68ba2;
+      --panel: #2e1024;
+      --surface: #250c1d;
+      --surface-strong: #180610;
+      --border: rgba(255, 123, 188, 0.19);
+      --accent: #ff78b9;
+      --accent-contrast: #1b0814;
+      --accent-rgb: 255, 120, 185;
+      --grid-rgb: 255, 120, 185;
+      --shadow-rgb: 18, 0, 10;
+      --glass: rgba(27, 8, 20, 0.72);
+      --glass-strong: rgba(27, 8, 20, 0.91);
+      --modal-overlay: rgba(20, 3, 14, 0.88);
+      --viewer-overlay: rgba(20, 3, 14, 0.95);
+      --selection-bg: #ff78b9;
+      --selection-fg: #1b0814;
+    }
+
+    html[data-theme="forest"] {
+      --background: #07150f;
+      --foreground: #effff7;
+      --muted: #82a08f;
+      --panel: #10291c;
+      --surface: #0c2117;
+      --surface-strong: #06130d;
+      --border: rgba(91, 229, 157, 0.18);
+      --accent: #59e39a;
+      --accent-contrast: #06150e;
+      --accent-rgb: 89, 227, 154;
+      --grid-rgb: 89, 227, 154;
+      --shadow-rgb: 0, 14, 7;
+      --glass: rgba(7, 21, 15, 0.72);
+      --glass-strong: rgba(7, 21, 15, 0.91);
+      --modal-overlay: rgba(3, 16, 10, 0.88);
+      --viewer-overlay: rgba(3, 16, 10, 0.95);
+      --selection-bg: #59e39a;
+      --selection-fg: #06150e;
+    }
+
+    html,
+    body,
+    #app {
+      background: var(--background);
+      color: var(--foreground);
+    }
+
+    #app {
+      background: var(--background);
+    }
+
+    ::selection {
+      color: var(--selection-fg);
+      background: var(--selection-bg);
+    }
+
+    #app::before {
+      background:
+        radial-gradient(circle at 18% 16%, rgba(var(--accent-rgb), 0.10), transparent 29%),
+        radial-gradient(circle at 82% 76%, rgba(var(--accent-rgb), 0.055), transparent 32%);
+    }
+
+    #app::after {
+      background-image:
+        linear-gradient(rgba(var(--grid-rgb), 0.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--grid-rgb), 0.10) 1px, transparent 1px);
+    }
+
+    .home-page::before {
+      background: radial-gradient(
+        560px circle at var(--spot-x) var(--spot-y),
+        rgba(var(--accent-rgb), 0.12),
+        transparent 68%
+      );
+    }
+
+    .work-button,
+    .contact-button {
+      color: var(--foreground);
+      background: var(--panel);
+      border-color: var(--border);
+    }
+
+    .work-button:hover,
+    .work-button:focus-visible,
+    .contact-button:hover,
+    .contact-button:focus-visible {
+      color: var(--accent-contrast);
+      background: var(--accent);
+    }
+
+    .work-button::before {
+      background: linear-gradient(
+        115deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.58) 48%,
+        transparent 66%
+      );
+    }
+
+    .work-button::after {
+      background: radial-gradient(
+        circle at var(--button-x, 50%) var(--button-y, 50%),
+        rgba(var(--accent-rgb), 0.32),
+        transparent 36%
+      );
+    }
+
+    .portrait-frame {
+      background: var(--panel);
+    }
+
+    .portrait-frame:hover {
+      background: color-mix(in srgb, var(--panel) 82%, var(--accent) 18%);
+    }
+
+    .portrait-frame::before,
+    .viewer-header::after,
+    .category-info-row,
+    .contact-link,
+    .contact-link:last-child {
+      border-color: var(--border);
+    }
+
+    .intro-name::after,
+    .category-button.is-active::before {
+      background: var(--accent);
+    }
+
+    .project-link,
+    .category-info-title,
+    .category-info-value,
+    .mobile-category-toggle {
+      color: var(--foreground);
+    }
+
+    .project-link::before,
+    .back-button,
+    .category-button,
+    .category-info-label,
+    .category-info-key,
+    .category-info-description,
+    .viewer-close,
+    .contact-close,
+    .contact-eyebrow,
+    .viewer-item-type,
+    .gallery-card-type {
+      color: var(--muted);
+    }
+
+    .project-link:hover,
+    .project-link:focus-visible,
+    .project-link:hover::before,
+    .project-link:focus-visible::before,
+    .back-button:hover,
+    .back-button:focus-visible,
+    .category-button:hover,
+    .category-button.is-active,
+    .viewer-close:hover,
+    .contact-close:hover,
+    .contact-close:focus-visible {
+      color: var(--accent);
+    }
+
+    .project-link::after {
+      background: var(--accent);
+    }
+
+    .project-link:focus-visible,
+    .category-button:focus-visible,
+    .back-button:focus-visible,
+    .viewer-close:focus-visible,
+    .contact-close:focus-visible,
+    .contact-link:focus-visible,
+    .theme-toggle:focus-visible,
+    .theme-option:focus-visible {
+      outline-color: var(--accent);
+    }
+
+    .category-panel::after {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--background) 72%, transparent) 0%,
+        color-mix(in srgb, var(--background) 34%, transparent) 64%,
+        transparent 100%
+      );
+    }
+
+    .gallery-card {
+      background: var(--panel);
+    }
+
+    .gallery-card::before {
+      background: linear-gradient(
+        100deg,
+        var(--surface) 40%,
+        color-mix(in srgb, var(--surface) 80%, var(--accent) 20%) 50%,
+        var(--surface) 60%
+      );
+      background-size: 220% 100%;
+    }
+
+    .gallery-card::after {
+      background: radial-gradient(
+        circle at var(--card-x, 50%) var(--card-y, 50%),
+        rgba(var(--accent-rgb), 0.20),
+        transparent 34%
+      );
+    }
+
+    .gallery-card:hover {
+      box-shadow: 0 28px 75px rgba(var(--shadow-rgb), 0.66);
+    }
+
+    .play-icon {
+      border-left-color: color-mix(in srgb, var(--accent) 76%, transparent);
+    }
+
+    .gallery-card:hover .play-icon {
+      border-left-color: var(--accent);
+    }
+
+    .viewer {
+      background:
+        radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.095), transparent 38%),
+        var(--viewer-overlay);
+    }
+
+    .viewer-media-shell,
+    .viewer-media-shell img,
+    .viewer-media-shell video,
+    .viewer-media-shell iframe {
+      background: var(--surface-strong);
+    }
+
+    .viewer-error {
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .contact-modal {
+      background: var(--modal-overlay);
+    }
+
+    .contact-card {
+      background: var(--surface);
+      border-color: var(--border);
+      box-shadow: 0 35px 100px rgba(var(--shadow-rgb), 0.58);
+    }
+
+    .contact-card::before {
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.11), transparent 58%);
+    }
+
+    .contact-close {
+      border-color: var(--border);
+      background: rgba(var(--accent-rgb), 0.045);
+    }
+
+    .contact-close:hover,
+    .contact-close:focus-visible {
+      background: rgba(var(--accent-rgb), 0.12);
+    }
+
+    .contact-link::after {
+      color: var(--accent);
+    }
+
+    .cursor {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.08);
+    }
+
+    .cursor::before {
+      background: var(--accent);
+    }
+
+    .cursor.is-hovering {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    /* Theme picker */
+    .theme-control {
+      --theme-control-gap: 10px;
+      position: fixed;
+      top: max(24px, env(safe-area-inset-top));
+      right: max(24px, env(safe-area-inset-right));
+      z-index: 320;
+      display: grid;
+      justify-items: end;
+      gap: var(--theme-control-gap);
+      view-transition-name: theme-control;
+    }
+
+    .theme-toggle {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--foreground);
+      background: var(--glass);
+      box-shadow: 0 12px 36px rgba(var(--shadow-rgb), 0.24);
+      backdrop-filter: blur(18px) saturate(1.18);
+      -webkit-backdrop-filter: blur(18px) saturate(1.18);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.055em;
+      text-transform: uppercase;
+      transition:
+        transform 320ms var(--ease-spring),
+        border-color 300ms var(--ease),
+        background-color 300ms var(--ease);
+    }
+
+    .theme-toggle:hover,
+    .theme-toggle[aria-expanded="true"] {
+      transform: translateY(-2px);
+      border-color: rgba(var(--accent-rgb), 0.48);
+      background: var(--glass-strong);
+    }
+
+    .theme-toggle:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .theme-toggle-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.12);
+      transition: background-color 400ms var(--ease), box-shadow 400ms var(--ease);
+    }
+
+    .theme-toggle-name {
+      color: var(--muted);
+      transition: color 300ms var(--ease);
+    }
+
+    .theme-toggle:hover .theme-toggle-name,
+    .theme-toggle[aria-expanded="true"] .theme-toggle-name {
+      color: var(--foreground);
+    }
+
+    .theme-menu {
+      width: min(224px, calc(100vw - 48px));
+      display: grid;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--glass-strong);
+      box-shadow: 0 24px 75px rgba(var(--shadow-rgb), 0.36);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(-8px) scale(0.96);
+      transform-origin: top right;
+      transition:
+        opacity 240ms var(--ease),
+        transform 380ms var(--ease-spring),
+        visibility 380ms;
+    }
+
+    .theme-control.is-open .theme-menu {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .theme-option {
+      --swatch: #ffffff;
+      width: 100%;
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      align-items: center;
+      gap: 11px;
+      padding: 0 11px;
+      border-radius: 11px;
+      color: var(--muted);
+      text-align: left;
+      font-size: 13px;
+      letter-spacing: -0.02em;
+      transition:
+        color 250ms var(--ease),
+        background-color 250ms var(--ease),
+        transform 300ms var(--ease-spring);
+    }
+
+    .theme-option:hover,
+    .theme-option:focus-visible {
+      color: var(--foreground);
+      background: rgba(var(--accent-rgb), 0.09);
+      transform: translateX(3px);
+      outline-offset: -2px;
+    }
+
+    .theme-option[aria-checked="true"] {
+      color: var(--foreground);
+      background: rgba(var(--accent-rgb), 0.12);
+    }
+
+    .theme-option-swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--swatch);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.22),
+        0 0 0 4px color-mix(in srgb, var(--swatch) 15%, transparent);
+    }
+
+    .theme-option-check {
+      width: 15px;
+      height: 15px;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-size: 12px;
+      opacity: 0;
+      transform: scale(0.5) rotate(-20deg);
+      transition: opacity 220ms var(--ease), transform 320ms var(--ease-spring);
+    }
+
+    .theme-option[aria-checked="true"] .theme-option-check {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    /* Minimal first-load screen */
+    .site-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--foreground);
+      background: var(--background);
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity 650ms var(--ease-cinematic),
+        visibility 650ms;
+    }
+
+    .site-loader::before {
+      content: "";
+      position: absolute;
+      width: min(64vw, 720px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.10), transparent 65%);
+      transform: scale(0.76);
+      animation: loader-breathe 1700ms var(--ease-in-out, ease-in-out) infinite alternate;
+    }
+
+    .site-loader.is-leaving {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .site-loader-inner {
+      position: relative;
+      z-index: 1;
+      width: min(260px, calc(100vw - 64px));
+      display: grid;
+      justify-items: center;
+      gap: 22px;
+    }
+
+    .site-loader-mark {
+      overflow: hidden;
+      font-size: clamp(46px, 7vw, 82px);
+      font-weight: 400;
+      line-height: 0.85;
+      letter-spacing: -0.09em;
+    }
+
+    .site-loader-mark span {
+      display: block;
+      padding: 0.08em 0.09em 0.14em 0.02em;
+      transform: translateY(115%);
+      animation: loader-mark-in 850ms var(--ease-cinematic) 90ms forwards;
+    }
+
+    .site-loader-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: loader-meta-in 500ms var(--ease) 430ms forwards;
+    }
+
+    .site-loader-track {
+      position: relative;
+      width: 100%;
+      height: 1px;
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .site-loader-progress {
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: loader-progress 1550ms var(--ease-cinematic) forwards;
+    }
+
+    @keyframes loader-mark-in {
+      to { transform: translateY(0); }
+    }
+
+    @keyframes loader-meta-in {
+      to { opacity: 1; }
+    }
+
+    @keyframes loader-progress {
+      0% { transform: scaleX(0); }
+      38% { transform: scaleX(0.28); }
+      72% { transform: scaleX(0.72); }
+      100% { transform: scaleX(1); }
+    }
+
+    @keyframes loader-breathe {
+      to { transform: scale(1.08); }
+    }
+
+    body.is-loading #app,
+    body.is-loading .theme-control {
+      opacity: 0;
+    }
+
+    body:not(.is-loading) #app,
+    body:not(.is-loading) .theme-control {
+      opacity: 1;
+      transition: opacity 800ms var(--ease-cinematic) 80ms;
+    }
+
+    /* Theme changes use a calm crossfade rather than route motion. */
+    html[data-transition-kind="theme"]::view-transition-old(root) {
+      animation: theme-fade-out 440ms var(--ease-cinematic) both;
+    }
+
+    html[data-transition-kind="theme"]::view-transition-new(root) {
+      animation: theme-fade-in 520ms var(--ease-cinematic) both;
+    }
+
+    @keyframes theme-fade-out {
+      to { opacity: 0; filter: blur(6px); }
+    }
+
+    @keyframes theme-fade-in {
+      from { opacity: 0; filter: blur(8px); }
+    }
+
+    @media (max-width: 820px) {
+      .category-panel {
+        background: var(--glass);
+      }
+
+      .category-list {
+        background: var(--glass-strong);
+      }
+
+      .category-info {
+        background: linear-gradient(
+          180deg,
+          rgba(var(--accent-rgb), 0.065),
+          rgba(var(--accent-rgb), 0.018) 70%,
+          transparent
+        );
+      }
+
+      .back-button {
+        border-color: var(--border);
+        background: var(--glass-strong);
+      }
+
+      .theme-control {
+        top: auto;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      .theme-toggle {
+        grid-row: 2;
+      }
+
+      .theme-menu {
+        grid-row: 1;
+        transform: translateY(8px) scale(0.96);
+        transform-origin: bottom right;
+      }
+
+      .theme-control.is-open .theme-menu {
+        transform: translateY(0) scale(1);
+      }
+
+      .theme-toggle-label {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .site-loader::before,
+      .site-loader-mark span,
+      .site-loader-meta,
+      .site-loader-progress {
+        animation-duration: 1ms !important;
+        animation-delay: 0ms !important;
+      }
+
+      .theme-menu,
+      .theme-toggle,
+      .theme-option,
+      .theme-option-check {
+        transition-duration: 1ms !important;
+      }
+    }
+
+
+    /* =========================================================
+       PROJECT CANVAS — FINAL UNIFIED BACKGROUND FIX
+       Keep navigation, category information and gallery on the
+       same ambient canvas. No isolated rectangle or tinted slab.
+       ========================================================== */
+
+    .project-detail-page,
+    .project-detail-page .detail-layout,
+    .project-detail-page .category-panel,
+    .project-detail-page .category-list,
+    .project-detail-page .category-info,
+    .project-detail-page .gallery-scroll,
+    #mobileCategoryInfoMount {
+      background-color: transparent !important;
+      background-image: none !important;
+      box-shadow: none;
+    }
+
+    .project-detail-page .category-panel::after {
+      content: none !important;
+      display: none !important;
+      background: none !important;
+    }
+
+    .project-detail-page .category-info {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    @media (max-width: 820px) {
+      .project-detail-page .category-panel {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      .project-detail-page .category-info {
+        border-bottom-color: transparent;
+      }
+
+      /* The list is invisible while closed. Give it a readable
+         temporary glass surface only while the menu is expanded. */
+      .project-detail-page .category-panel:not(.is-open) .category-list {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      .project-detail-page .category-panel.is-open .category-list {
+        background: color-mix(
+          in srgb,
+          var(--background) 88%,
+          transparent
+        ) !important;
+        backdrop-filter: blur(20px) saturate(1.08);
+        -webkit-backdrop-filter: blur(20px) saturate(1.08);
+      }
+    }
+
   </style>
 </head>
 
-<body>
+<body class="is-loading">
+  <div
+    id="siteLoader"
+    class="site-loader"
+    role="status"
+    aria-live="polite"
+    aria-label="Loading portfolio"
+  >
+    <div class="site-loader-inner">
+      <div class="site-loader-mark" aria-hidden="true">
+        <span>vano.</span>
+      </div>
+
+      <div class="site-loader-meta" aria-hidden="true">
+        <span>Portfolio</span>
+        <span id="loaderPercent">00</span>
+      </div>
+
+      <div class="site-loader-track" aria-hidden="true">
+        <div class="site-loader-progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="themeControl" class="theme-control">
+    <button
+      id="themeToggle"
+      class="theme-toggle interactive"
+      type="button"
+      aria-expanded="false"
+      aria-controls="themeMenu"
+      aria-label="Choose website theme"
+    >
+      <span class="theme-toggle-dot" aria-hidden="true"></span>
+      <span class="theme-toggle-label">Theme</span>
+      <span id="themeCurrentName" class="theme-toggle-name">Dark</span>
+    </button>
+
+    <div
+      id="themeMenu"
+      class="theme-menu"
+      role="menu"
+      aria-label="Website themes"
+      aria-hidden="true"
+    >
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="dark" aria-checked="true" style="--swatch:#f5f5f5">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Dark</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="light" aria-checked="false" style="--swatch:#ddd8ca">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Light</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="blue" aria-checked="false" style="--swatch:#68b8ff">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Blue</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="red" aria-checked="false" style="--swatch:#ff626a">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Red</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="purple" aria-checked="false" style="--swatch:#bd7dff">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Purple</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="pink" aria-checked="false" style="--swatch:#ff78b9">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Pink</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+      <button class="theme-option interactive" type="button" role="menuitemradio" data-theme="forest" aria-checked="false" style="--swatch:#59e39a">
+        <span class="theme-option-swatch" aria-hidden="true"></span><span>Forest</span><span class="theme-option-check" aria-hidden="true">✓</span>
+      </button>
+    </div>
+  </div>
   <div id="app">
     <main
       id="homePage"
@@ -1640,8 +3258,8 @@
               class="work-button-label"
               aria-hidden="true"
             >
-              <span class="work-button-line">MY</span>
-              <span class="work-button-line">WORK</span>
+              <span class="work-button-line" data-text="MY">MY</span>
+              <span class="work-button-line" data-text="WORK">WORK</span>
             </span>
           </span>
         </button>
@@ -1688,6 +3306,8 @@
     <main
       id="projectIndexPage"
       class="page project-index-page"
+      aria-hidden="true"
+      inert
     >
       <button
         class="back-button interactive"
@@ -1707,6 +3327,8 @@
     <main
       id="projectDetailPage"
       class="page project-detail-page"
+      aria-hidden="true"
+      inert
     >
       <button
         class="back-button interactive"
@@ -3434,6 +5056,293 @@
   }
 ];
 
+
+    const siteLoader =
+      document.getElementById("siteLoader");
+
+    const loaderPercent =
+      document.getElementById("loaderPercent");
+
+    const themeControl =
+      document.getElementById("themeControl");
+
+    const themeToggle =
+      document.getElementById("themeToggle");
+
+    const themeMenu =
+      document.getElementById("themeMenu");
+
+    const themeCurrentName =
+      document.getElementById("themeCurrentName");
+
+    const themeOptions = Array.from(
+      document.querySelectorAll(".theme-option")
+    );
+
+    const THEME_LABELS = {
+      dark: "Dark",
+      light: "Light",
+      blue: "Blue",
+      red: "Red",
+      purple: "Purple",
+      pink: "Pink",
+      forest: "Forest"
+    };
+
+    function getActiveTheme() {
+      const theme =
+        document.documentElement.dataset.theme;
+
+      return THEME_LABELS[theme]
+        ? theme
+        : "dark";
+    }
+
+    function updateThemeInterface(theme) {
+      const safeTheme = THEME_LABELS[theme]
+        ? theme
+        : "dark";
+
+      themeCurrentName.textContent =
+        THEME_LABELS[safeTheme];
+
+      themeOptions.forEach((option) => {
+        option.setAttribute(
+          "aria-checked",
+          String(
+            option.dataset.theme === safeTheme
+          )
+        );
+      });
+
+      requestAnimationFrame(() => {
+        const background = getComputedStyle(
+          document.documentElement
+        ).getPropertyValue("--background").trim();
+
+        const themeColorMeta =
+          document.querySelector(
+            'meta[name="theme-color"]'
+          );
+
+        if (themeColorMeta && background) {
+          themeColorMeta.content = background;
+        }
+      });
+    }
+
+    function closeThemeMenu({
+      returnFocus = false
+    } = {}) {
+      themeControl.classList.remove("is-open");
+      themeToggle.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+      themeMenu.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      if (returnFocus) themeToggle.focus();
+    }
+
+    function openThemeMenu() {
+      themeControl.classList.add("is-open");
+      themeToggle.setAttribute(
+        "aria-expanded",
+        "true"
+      );
+      themeMenu.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+    }
+
+    function applyTheme(theme, {
+      animate = true
+    } = {}) {
+      if (!THEME_LABELS[theme]) return;
+
+      const commitTheme = () => {
+        document.documentElement.dataset.theme =
+          theme;
+
+        try {
+          localStorage.setItem(
+            "portfolio-theme",
+            theme
+          );
+        } catch (error) {
+          /* Theme still works when storage is unavailable. */
+        }
+
+        updateThemeInterface(theme);
+      };
+
+      if (
+        animate &&
+        !window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches &&
+        document.startViewTransition
+      ) {
+        document.documentElement.dataset
+          .transitionKind = "theme";
+
+        const transition =
+          document.startViewTransition(
+            commitTheme
+          );
+
+        transition.finished.finally(() => {
+          delete document.documentElement.dataset
+            .transitionKind;
+        });
+      } else {
+        commitTheme();
+      }
+    }
+
+    themeToggle.addEventListener(
+      "click",
+      () => {
+        if (
+          themeControl.classList.contains(
+            "is-open"
+          )
+        ) {
+          closeThemeMenu();
+        } else {
+          openThemeMenu();
+        }
+      }
+    );
+
+    themeOptions.forEach((option) => {
+      option.addEventListener("click", () => {
+        const selectedTheme =
+          option.dataset.theme;
+
+        if (selectedTheme !== getActiveTheme()) {
+          applyTheme(selectedTheme);
+        }
+
+        closeThemeMenu({
+          returnFocus: true
+        });
+      });
+    });
+
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (
+          themeControl.classList.contains(
+            "is-open"
+          ) &&
+          !themeControl.contains(event.target)
+        ) {
+          closeThemeMenu();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Escape" &&
+          themeControl.classList.contains(
+            "is-open"
+          )
+        ) {
+          event.stopPropagation();
+          closeThemeMenu({
+            returnFocus: true
+          });
+        }
+      }
+    );
+
+    updateThemeInterface(getActiveTheme());
+
+    /* The loader has a minimum display time so it feels intentional,
+       but a fallback prevents slow external media from trapping it. */
+    const loaderStartedAt = performance.now();
+    let loaderReleased = false;
+    let loaderFrame = null;
+
+    function animateLoaderCounter() {
+      if (loaderReleased) return;
+
+      const elapsed =
+        performance.now() - loaderStartedAt;
+
+      const simulated = Math.min(
+        94,
+        Math.round(
+          100 * (1 - Math.exp(-elapsed / 720))
+        )
+      );
+
+      loaderPercent.textContent = String(
+        simulated
+      ).padStart(2, "0");
+
+      loaderFrame = requestAnimationFrame(
+        animateLoaderCounter
+      );
+    }
+
+    function releaseSiteLoader() {
+      if (loaderReleased) return;
+      loaderReleased = true;
+
+      if (loaderFrame) {
+        cancelAnimationFrame(loaderFrame);
+      }
+
+      const elapsed =
+        performance.now() - loaderStartedAt;
+
+      const remaining = Math.max(
+        0,
+        1050 - elapsed
+      );
+
+      window.setTimeout(() => {
+        loaderPercent.textContent = "100";
+        document.body.classList.remove(
+          "is-loading"
+        );
+        siteLoader.classList.add(
+          "is-leaving"
+        );
+
+        window.setTimeout(() => {
+          siteLoader.hidden = true;
+        }, 720);
+      }, remaining);
+    }
+
+    animateLoaderCounter();
+
+    if (document.readyState === "complete") {
+      releaseSiteLoader();
+    } else {
+      window.addEventListener(
+        "load",
+        releaseSiteLoader,
+        { once: true }
+      );
+    }
+
+    window.setTimeout(
+      releaseSiteLoader,
+      3200
+    );
+
     const pages = {
       home: document.getElementById("homePage"),
       projects:
@@ -3551,15 +5460,86 @@
     let currentCategory = null;
     let previouslyFocusedElement = null;
     let gallerySeq = 0;
+    let currentPageName = "home";
 
-    function showPage(
-      pageName,
-      updateHash = true
+    const reducedMotionQuery =
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      );
+
+    const precisePointerQuery =
+      window.matchMedia(
+        "(hover: hover) and (pointer: fine)"
+      );
+
+    const routeDepth = {
+      home: 0,
+      projects: 1,
+      detail: 2
+    };
+
+    function getCurrentRouteState(
+      pageName = currentPageName
     ) {
-      if (!pages[pageName]) {
-        pageName = "home";
+      return {
+        page: pageName,
+        projectId:
+          pageName === "detail"
+            ? currentProject?.id || null
+            : null,
+        categoryId:
+          pageName === "detail"
+            ? currentCategory?.id || null
+            : null
+      };
+    }
+
+    function hashForRoute(route) {
+      if (
+        route.page === "detail" &&
+        route.projectId
+      ) {
+        const project = encodeURIComponent(
+          route.projectId
+        );
+
+        const category = route.categoryId
+          ? `/${encodeURIComponent(
+              route.categoryId
+            )}`
+          : "";
+
+        return `#project/${project}${category}`;
       }
 
+      return route.page === "projects"
+        ? "#projects"
+        : "#home";
+    }
+
+    function writeHistory(
+      pageName,
+      mode = "push",
+      extraState = {}
+    ) {
+      const route = {
+        ...getCurrentRouteState(pageName),
+        ...extraState
+      };
+
+      const method =
+        mode === "replace"
+          ? "replaceState"
+          : "pushState";
+
+      history[method](
+        route,
+        "",
+        hashForRoute(route)
+      );
+    }
+
+    function activatePage(pageName) {
       Object.entries(pages).forEach(
         ([name, page]) => {
           const active = name === pageName;
@@ -3573,8 +5553,12 @@
             "aria-hidden",
             String(!active)
           );
+
+          page.inert = !active;
         }
       );
+
+      currentPageName = pageName;
 
       categoryPanel.classList.remove(
         "is-open"
@@ -3584,22 +5568,58 @@
         "aria-expanded",
         "false"
       );
+    }
 
-      if (updateHash) {
-        const hashes = {
-          home: "#home",
-          projects: "#projects",
+    function showPage(
+      pageName,
+      {
+        historyMode = "push",
+        animate = true
+      } = {}
+    ) {
+      if (!pages[pageName]) {
+        pageName = "home";
+      }
 
-          detail: currentProject
-            ? `#project/${currentProject.id}`
-            : "#projects"
-        };
+      const previousPage = currentPageName;
+      const direction =
+        routeDepth[pageName] >=
+        routeDepth[previousPage]
+          ? "forward"
+          : "back";
 
-        history.replaceState(
-          null,
-          "",
-          hashes[pageName]
+      document.documentElement.dataset
+        .navDirection = direction;
+
+      const update = () =>
+        activatePage(pageName);
+
+      const canUseViewTransition =
+        animate &&
+        previousPage !== pageName &&
+        !reducedMotionQuery.matches &&
+        typeof document.startViewTransition ===
+          "function";
+
+      if (canUseViewTransition) {
+        document.documentElement.classList.add(
+          "is-transitioning"
         );
+
+        const transition =
+          document.startViewTransition(update);
+
+        transition.finished.finally(() => {
+          document.documentElement.classList.remove(
+            "is-transitioning"
+          );
+        });
+      } else {
+        update();
+      }
+
+      if (historyMode !== "none") {
+        writeHistory(pageName, historyMode);
       }
     }
 
@@ -3618,7 +5638,8 @@
               button.dataset.action;
 
             if (
-              destination === "projects"
+              destination === "projects" ||
+              destination === "home"
             ) {
               currentProject = null;
               currentCategory = null;
@@ -3645,6 +5666,12 @@
           button.textContent =
             project.name;
 
+          button.dataset.index =
+            String(index + 1).padStart(
+              2,
+              "0"
+            );
+
           button.style.transitionDelay =
             `${index * 35}ms`;
 
@@ -3660,14 +5687,28 @@
       registerCursorTargets();
     }
 
-    function openProject(projectId) {
+    function openProject(
+      projectId,
+      {
+        historyMode = "push",
+        categoryId = null,
+        animate = true
+      } = {}
+    ) {
       const project =
         PORTFOLIO_DATA.find(
           (item) => item.id === projectId
         );
 
       if (!project) {
-        showPage("projects");
+        currentProject = null;
+        currentCategory = null;
+
+        showPage("projects", {
+          historyMode,
+          animate
+        });
+
         return;
       }
 
@@ -3676,10 +5717,21 @@
       renderCategories(project);
 
       if (project.categories.length) {
+        const selectedCategory =
+          project.categories.some(
+            (category) =>
+              category.id === categoryId
+          )
+            ? categoryId
+            : project.categories[0].id;
+
         selectCategory(
-          project.categories[0].id
+          selectedCategory,
+          { historyMode: "none" }
         );
       } else {
+        currentCategory = null;
+
         galleryGrid.innerHTML = `
           <div class="gallery-empty">
             Belum ada kategori.
@@ -3691,14 +5743,17 @@
         );
       }
 
-      showPage("detail");
+      showPage("detail", {
+        historyMode,
+        animate
+      });
     }
 
     function renderCategories(project) {
       categoryList.replaceChildren();
 
       project.categories.forEach(
-        (category) => {
+        (category, index) => {
           const button =
             document.createElement("button");
 
@@ -3709,6 +5764,11 @@
 
           button.dataset.categoryId =
             category.id;
+
+          button.style.setProperty(
+            "--category-index",
+            index
+          );
 
           button.textContent =
             category.name;
@@ -3736,7 +5796,10 @@
       registerCursorTargets();
     }
 
-    function selectCategory(categoryId) {
+    function selectCategory(
+      categoryId,
+      { historyMode = "replace" } = {}
+    ) {
       if (!currentProject) {
         return;
       }
@@ -3781,6 +5844,16 @@
       galleryScroll.scrollTop = 0;
 
       renderGallery(category.items);
+
+      if (
+        currentPageName === "detail" &&
+        historyMode !== "none"
+      ) {
+        writeHistory(
+          "detail",
+          historyMode
+        );
+      }
     }
 
     function renderCategoryInfo(category) {
@@ -3831,12 +5904,25 @@
       }
     }
 
+    let categoryLayoutFrame = 0;
+
     window.addEventListener(
       "resize",
-      placeCategoryInfo
+      () => {
+        cancelAnimationFrame(
+          categoryLayoutFrame
+        );
+
+        categoryLayoutFrame =
+          requestAnimationFrame(
+            placeCategoryInfo
+          );
+      },
+      { passive: true }
     );
 
     function renderGallery(items) {
+      galleryRevealObserver.disconnect();
       galleryGrid.replaceChildren();
 
       gallerySeq += 1;
@@ -4058,7 +6144,7 @@
           });
         },
         {
-          root: null,
+          root: galleryScroll,
           rootMargin: "300px 0px 300px 0px",
           threshold: 0.01
         }
@@ -4302,7 +6388,10 @@
       );
     }
 
-    function openViewer(item) {
+    function openViewer(
+      item,
+      { historyMode = "push" } = {}
+    ) {
       previouslyFocusedElement =
         document.activeElement;
 
@@ -4424,6 +6513,23 @@
       );
 
       viewerClose.focus();
+
+      if (historyMode === "push") {
+        const itemIndex =
+          currentCategory?.items?.indexOf(
+            item
+          ) ?? -1;
+
+        history.pushState(
+          {
+            ...getCurrentRouteState(),
+            overlay: "viewer",
+            itemIndex
+          },
+          "",
+          window.location.href
+        );
+      }
     }
 
     function renderViewerError(
@@ -4439,7 +6545,21 @@
       container.appendChild(error);
     }
 
-    function closeViewer() {
+    function closeViewer(
+      {
+        historyMode = "back",
+        restoreFocus = true
+      } = {}
+    ) {
+      if (
+        historyMode === "back" &&
+        history.state?.overlay ===
+          "viewer"
+      ) {
+        history.back();
+        return;
+      }
+
       const video =
         viewerMediaArea.querySelector(
           "video"
@@ -4460,7 +6580,9 @@
         "true"
       );
 
-      restorePreviousFocus();
+      if (restoreFocus) {
+        restorePreviousFocus();
+      }
     }
 
     viewerClose.addEventListener(
@@ -4491,7 +6613,9 @@
         CONTACT_DATA.instagramURL;
     }
 
-    function openContact() {
+    function openContact(
+      { historyMode = "push" } = {}
+    ) {
       previouslyFocusedElement =
         document.activeElement;
 
@@ -4505,9 +6629,25 @@
       );
 
       contactClose.focus();
+
+      if (historyMode === "push") {
+        history.pushState(
+          {
+            ...getCurrentRouteState(),
+            overlay: "contact"
+          },
+          "",
+          window.location.href
+        );
+      }
     }
 
-    function closeContact() {
+    function closeContact(
+      {
+        historyMode = "back",
+        restoreFocus = true
+      } = {}
+    ) {
       contactModal.classList.remove(
         "is-open"
       );
@@ -4517,7 +6657,18 @@
         "true"
       );
 
-      restorePreviousFocus();
+      if (
+        historyMode === "back" &&
+        history.state?.overlay ===
+          "contact"
+      ) {
+        history.back();
+        return;
+      }
+
+      if (restoreFocus) {
+        restorePreviousFocus();
+      }
     }
 
     openContactButton.addEventListener(
@@ -4613,6 +6764,132 @@
         );
       }
     );
+
+    if (precisePointerQuery.matches) {
+      openWorkButton.addEventListener(
+        "pointermove",
+        (event) => {
+          const rect =
+            openWorkButton.getBoundingClientRect();
+
+          const normalizedX =
+            (event.clientX - rect.left) /
+              rect.width -
+            0.5;
+
+          const normalizedY =
+            (event.clientY - rect.top) /
+              rect.height -
+            0.5;
+
+          openWorkButton.style.setProperty(
+            "--mag-x",
+            `${normalizedX * 14}px`
+          );
+
+          openWorkButton.style.setProperty(
+            "--mag-y",
+            `${normalizedY * 14}px`
+          );
+
+          openWorkButton.style.setProperty(
+            "--button-x",
+            `${(normalizedX + 0.5) * 100}%`
+          );
+
+          openWorkButton.style.setProperty(
+            "--button-y",
+            `${(normalizedY + 0.5) * 100}%`
+          );
+        }
+      );
+
+      openWorkButton.addEventListener(
+        "pointerleave",
+        () => {
+          openWorkButton.style.setProperty(
+            "--mag-x",
+            "0px"
+          );
+
+          openWorkButton.style.setProperty(
+            "--mag-y",
+            "0px"
+          );
+        }
+      );
+
+      galleryGrid.addEventListener(
+        "pointermove",
+        (event) => {
+          const card = event.target.closest(
+            ".gallery-card"
+          );
+
+          if (!card) {
+            return;
+          }
+
+          const rect =
+            card.getBoundingClientRect();
+
+          const x =
+            (event.clientX - rect.left) /
+            rect.width;
+
+          const y =
+            (event.clientY - rect.top) /
+            rect.height;
+
+          card.style.setProperty(
+            "--card-x",
+            `${x * 100}%`
+          );
+
+          card.style.setProperty(
+            "--card-y",
+            `${y * 100}%`
+          );
+
+          card.style.setProperty(
+            "--card-rotate-x",
+            `${(0.5 - y) * 4}deg`
+          );
+
+          card.style.setProperty(
+            "--card-rotate-y",
+            `${(x - 0.5) * 4}deg`
+          );
+        },
+        { passive: true }
+      );
+
+      galleryGrid.addEventListener(
+        "pointerout",
+        (event) => {
+          const card = event.target.closest(
+            ".gallery-card"
+          );
+
+          if (
+            !card ||
+            card.contains(event.relatedTarget)
+          ) {
+            return;
+          }
+
+          card.style.setProperty(
+            "--card-rotate-x",
+            "0deg"
+          );
+
+          card.style.setProperty(
+            "--card-rotate-y",
+            "0deg"
+          );
+        }
+      );
+    }
 
     let cursorX =
       window.innerWidth / 2;
@@ -4819,38 +7096,135 @@
         });
     }
 
-    function handleInitialRoute() {
+    function parseRouteFromLocation() {
       const hash =
-        window.location.hash;
+        window.location.hash || "#home";
 
-      if (
-        hash.startsWith("#project/")
-      ) {
-        const projectId =
-          hash.replace(
-            "#project/",
-            ""
-          );
+      if (hash.startsWith("#project/")) {
+        const segments = hash
+          .replace("#project/", "")
+          .split("/")
+          .filter(Boolean)
+          .map((segment) => {
+            try {
+              return decodeURIComponent(
+                segment
+              );
+            } catch {
+              return segment;
+            }
+          });
 
-        const exists =
-          PORTFOLIO_DATA.some(
-            (project) =>
-              project.id === projectId
-          );
-
-        if (exists) {
-          openProject(projectId);
-          return;
-        }
+        return {
+          page: "detail",
+          projectId: segments[0] || null,
+          categoryId: segments[1] || null
+        };
       }
 
       if (hash === "#projects") {
-        showPage("projects", false);
-        return;
+        return { page: "projects" };
       }
 
-      showPage("home", false);
+      return { page: "home" };
     }
+
+    function restoreRoute(
+      route,
+      { animate = true } = {}
+    ) {
+      const safeRoute =
+        route && pages[route.page]
+          ? route
+          : parseRouteFromLocation();
+
+      closeViewer({
+        historyMode: "none",
+        restoreFocus: false
+      });
+
+      closeContact({
+        historyMode: "none",
+        restoreFocus: false
+      });
+
+      if (
+        safeRoute.page === "detail" &&
+        safeRoute.projectId
+      ) {
+        openProject(
+          safeRoute.projectId,
+          {
+            historyMode: "none",
+            categoryId:
+              safeRoute.categoryId,
+            animate
+          }
+        );
+      } else {
+        currentProject = null;
+        currentCategory = null;
+
+        showPage(
+          safeRoute.page === "projects"
+            ? "projects"
+            : "home",
+          {
+            historyMode: "none",
+            animate
+          }
+        );
+      }
+
+      if (
+        safeRoute.overlay === "viewer" &&
+        currentCategory &&
+        Number.isInteger(
+          safeRoute.itemIndex
+        )
+      ) {
+        const item =
+          currentCategory.items[
+            safeRoute.itemIndex
+          ];
+
+        if (item) {
+          openViewer(item, {
+            historyMode: "none"
+          });
+        }
+      } else if (
+        safeRoute.overlay === "contact"
+      ) {
+        openContact({
+          historyMode: "none"
+        });
+      }
+    }
+
+    function handleInitialRoute() {
+      const initialRoute =
+        parseRouteFromLocation();
+
+      restoreRoute(initialRoute, {
+        animate: false
+      });
+
+      writeHistory(
+        currentPageName,
+        "replace"
+      );
+    }
+
+    window.addEventListener(
+      "popstate",
+      (event) => {
+        restoreRoute(
+          event.state ||
+            parseRouteFromLocation()
+        );
+      }
+    );
 
     initializeContact();
     renderProjectIndex();
