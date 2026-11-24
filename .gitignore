@@ -1,0 +1,5 @@
+node_modules/
+dist/
+dist-sites/
+.npm-cache/
+.env.local
