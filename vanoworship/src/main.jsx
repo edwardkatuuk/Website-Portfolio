@@ -11,7 +11,7 @@ import './styles.css';
 import LightRays from './LightRays';
 import { TextAnimate } from './text-animate';
 
-const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL || '';
+const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL || 'https://github.com/edwardkatuuk/Website-Portfolio/releases/download/Installer_VanoWorship/VanoWorship-1.0.0-Setup.exe';
 
 const slideUpWords = { as: 'span', animation: 'slideUp', by: 'word', startOnView: false, accessible: false };
 const heroDescription = [
