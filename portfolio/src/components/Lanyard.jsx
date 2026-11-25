@@ -720,6 +720,7 @@ const Lanyard = ({
   breeze = 0.5,
   interactive = true,
   intro = true,
+  active = true,
   flipped,
   onFlip,
   overlayRef,
@@ -729,6 +730,8 @@ const Lanyard = ({
   const containerRef = useRef(null);
   const settingsRef = useRef(null);
   const applyRef = useRef(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
 
   settingsRef.current = {
     frontImage,
@@ -848,7 +851,7 @@ const Lanyard = ({
     const bodyMesh = new THREE.Mesh(undefined, edgeMaterial);
     const frontMesh = new THREE.Mesh(undefined, frontMaterial);
     const backMesh = new THREE.Mesh(undefined, backMaterial);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(RING_RADIUS, RING_TUBE, 18, 72), metalMaterial);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(RING_RADIUS, RING_TUBE, 16, 48), metalMaterial);
     ring.rotation.y = Math.PI / 2 - 0.7;
     cardGroup.add(bodyMesh, frontMesh, backMesh, ring);
     scene.add(cardGroup);
@@ -861,7 +864,7 @@ const Lanyard = ({
     const clampGroup = new THREE.Group();
     const clampMesh = new THREE.Mesh(buildClampGeometry(STRAP_WIDTH), metalMaterial);
     clampMesh.position.y = EYELET_RADIUS + CLAMP_BODY / 2 - 0.004;
-    const eyelet = new THREE.Mesh(new THREE.TorusGeometry(EYELET_RADIUS, 0.0105, 14, 40), metalMaterial);
+    const eyelet = new THREE.Mesh(new THREE.TorusGeometry(EYELET_RADIUS, 0.0105, 12, 32), metalMaterial);
     clampGroup.add(clampMesh, eyelet);
     scene.add(clampGroup);
 
@@ -870,6 +873,7 @@ const Lanyard = ({
     const mouth = new THREE.Vector3();
     const tuck = new THREE.Vector3();
     const curve = new THREE.CatmullRomCurve3(controls, false, 'centripetal');
+    curve.arcLengthDivisions = SAMPLES;
     const view = { width: 1, height: 1, worldHeight: 1 };
     let layout = cardLayout('portrait', 0.3);
     let applied = {};
@@ -1056,6 +1060,7 @@ const Lanyard = ({
 
       if (controlled && s.flipped !== (sim.turn !== 0)) flip();
 
+      updatePhysicsConfig();
       applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale };
       start();
     };
@@ -1142,6 +1147,8 @@ const Lanyard = ({
       clampGroup.position.copy(hang);
     };
 
+    const lastOverlay = { x: NaN, y: NaN, z: NaN, qx: NaN, qy: NaN, qz: NaN, qw: NaN };
+
     const render = () => {
       if (controlled) {
         const overlay = settingsRef.current.overlayRef?.current;
@@ -1151,13 +1158,30 @@ const Lanyard = ({
           const x = (position.x - home.x) * pixels;
           const y = (home.y - position.y) * pixels;
           const z = position.z * pixels;
-          const rotation = overlayRotation.makeRotationFromQuaternion(quaternion).elements;
-          // Three uses Y up. CSS uses Y down, including for the rotation axes.
-          rotation[1] *= -1;
-          rotation[4] *= -1;
-          rotation[6] *= -1;
-          rotation[9] *= -1;
-          overlay.style.transform = `translate3d(${x}px, ${y}px, ${z}px) matrix3d(${rotation.join(',')})`;
+          if (
+            Math.abs(x - lastOverlay.x) > 1e-4 ||
+            Math.abs(y - lastOverlay.y) > 1e-4 ||
+            Math.abs(z - lastOverlay.z) > 1e-4 ||
+            Math.abs(quaternion.x - lastOverlay.qx) > 1e-5 ||
+            Math.abs(quaternion.y - lastOverlay.qy) > 1e-5 ||
+            Math.abs(quaternion.z - lastOverlay.qz) > 1e-5 ||
+            Math.abs(quaternion.w - lastOverlay.qw) > 1e-5
+          ) {
+            lastOverlay.x = x;
+            lastOverlay.y = y;
+            lastOverlay.z = z;
+            lastOverlay.qx = quaternion.x;
+            lastOverlay.qy = quaternion.y;
+            lastOverlay.qz = quaternion.z;
+            lastOverlay.qw = quaternion.w;
+            const rotation = overlayRotation.makeRotationFromQuaternion(quaternion).elements;
+            // Three uses Y up. CSS uses Y down, including for the rotation axes.
+            rotation[1] *= -1;
+            rotation[4] *= -1;
+            rotation[6] *= -1;
+            rotation[9] *= -1;
+            overlay.style.transform = `translate3d(${x}px, ${y}px, ${z}px) matrix3d(${rotation.join(',')})`;
+          }
         }
       }
       cardGroup.position.copy(sim.body.position);
@@ -1166,41 +1190,49 @@ const Lanyard = ({
       renderer.render(scene, camera);
     };
 
-    const physics = () => {
+    const physicsConfig = {
+      gravity: 20,
+      hold: 0,
+      stiffness: 0,
+      spring: 0,
+      bandDamping: 0,
+      linearDrag: 1,
+      angularDrag: 1,
+      air: 0.15,
+      broadside: 0.5,
+      spinAir: 0.03,
+      nodeDrag: 2,
+      nodeAir: 0.2,
+      twist: 30,
+      twistDamping: 3,
+      grip: 40,
+      gripDamping: 6,
+      breeze: 0
+    };
+
+    const updatePhysicsConfig = () => {
       const s = settingsRef.current;
       const gravity = 40 * clamp(s.gravity, 0, 3);
       const weight = Math.max(gravity, 20);
       const springy = clamp(s.elasticity, 0, 1);
       const settle = clamp(s.damping, 0, 1);
-      return {
-        gravity,
-        hold: weight * mix(2.2, 5.5, springy),
-        stiffness: weight * 10 * JOINTS,
-        spring: weight * mix(0.1, 0.4, springy) * JOINTS,
-        bandDamping: weight * mix(0.3, 0.08, springy) * JOINTS,
-        linearDrag: 0.25 * Math.pow(16, settle),
-        angularDrag: 0.5 * Math.pow(12, settle),
-        air: 0.15,
-        broadside: 0.5,
-        spinAir: 0.03,
-        nodeDrag: 2,
-        nodeAir: 0.2,
-        twist: 30,
-        twistDamping: 3,
-        grip: 40,
-        gripDamping: 6,
-        breeze: reducedMotion ? 0 : clamp(s.breeze, 0, 1)
-      };
+      physicsConfig.gravity = gravity;
+      physicsConfig.hold = weight * mix(2.2, 5.5, springy);
+      physicsConfig.stiffness = weight * 10 * JOINTS;
+      physicsConfig.spring = weight * mix(0.1, 0.4, springy) * JOINTS;
+      physicsConfig.bandDamping = weight * mix(0.3, 0.08, springy) * JOINTS;
+      physicsConfig.linearDrag = 0.25 * Math.pow(16, settle);
+      physicsConfig.angularDrag = 0.5 * Math.pow(12, settle);
+      physicsConfig.breeze = reducedMotion ? 0 : clamp(s.breeze, 0, 1);
     };
 
     const tick = now => {
       raf = 0;
-      if (!alive) return;
+      if (!alive || !visible || !activeRef.current) return;
       const dt = Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000));
       last = now;
       time += dt;
-      const current = physics();
-      stepSimulation(sim, dt, current, time);
+      stepSimulation(sim, dt, physicsConfig, time);
       const body = sim.body;
       if (!Number.isFinite(body.position.x + body.position.y + body.position.z + body.quaternion.w)) {
         sim.grab = null;
@@ -1208,11 +1240,18 @@ const Lanyard = ({
         if (controlled) snapTurn(settingsRef.current.flipped ? Math.PI : 0);
       }
       render();
-      const resting = sim.calm > 1.2 && !sim.grab && current.breeze === 0;
-      if (visible && !resting) raf = requestAnimationFrame(tick);
+      const resting = sim.calm > 1.2 && !sim.grab && physicsConfig.breeze === 0;
+      if (visible && activeRef.current && !resting) raf = requestAnimationFrame(tick);
     };
 
     const start = () => {
+      if (!activeRef.current) {
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        return;
+      }
       if (raf || !visible || !alive || (controlled && !canvas.hasAttribute('data-ready'))) return;
       sim.calm = 0;
       last = performance.now();
@@ -1316,10 +1355,11 @@ const Lanyard = ({
     canvas.addEventListener('lostpointercapture', onPointerUp);
     canvas.addEventListener('touchstart', onTouchStart, { passive: false });
 
+    const maxDpr = matchMedia('(pointer: coarse)').matches ? 1.5 : 2;
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
       renderer.setSize(view.width, view.height, false);
       apply();
       render();

@@ -2,8 +2,6 @@ import { useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Coffee, Download, Heart, Instagram, Mail, MonitorDown, QrCode, X } from 'lucide-react';
 import { domAnimation, LazyMotion } from 'motion/react';
-import '@fontsource-variable/inter/wght.css';
-import '@fontsource-variable/inter/wght-italic.css';
 import logo from '../Assets/LOGO VANOWORSHIP.webp';
 import laptop from '../Assets/laptop.webp';
 import laptopMobile from '../Assets/laptop-mobile.webp';
@@ -105,7 +103,7 @@ function LandingPage() {
       />
       <div className="actions enter">
         {downloadUrl ? (
-          <a className="button button-primary" href={downloadUrl} target="_blank" rel="noopener noreferrer">
+          <a className="button button-primary" href={downloadUrl} download>
             {downloadLabel}
           </a>
         ) : (

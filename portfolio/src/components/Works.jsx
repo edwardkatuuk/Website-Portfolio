@@ -267,18 +267,20 @@ export default function Works({ open, project, onProjectChange, onClose }) {
 
   return (
     <section className="works" inert={!open} aria-label="My Works">
+      <GradientASCII
+        className="works-background"
+        aria-hidden="true"
+        data-detail={Boolean(project)}
+        active={open && !project}
+        colors={['#181818', '#20201e']}
+        shape="horizon"
+        characters=" =+xX0S8#@"
+        cellSize={25}
+        density={0.8}
+        dpr={1}
+        intro={false}
+      />
       <div className="works-index" ref={index} inert={Boolean(project)} data-detail={Boolean(project)}>
-        <GradientASCII
-          className="works-background"
-          aria-hidden="true"
-          colors={['#181818', '#20201e']}
-          shape="horizon"
-          characters=" =+xX0S8#@"
-          cellSize={25}
-          density={0.8}
-          dpr={1}
-          intro={false}
-        />
         <div className="works-inner">
           <ProjectBack onClick={onClose}>Back to lanyard</ProjectBack>
           <h1 className="works-title" ref={title} tabIndex={-1}>My Works</h1>

@@ -28,6 +28,7 @@ button { font: inherit; cursor: pointer; }
   --card-content-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --card-menu-stagger: 55ms;
   --stage-height: 100svh;
+  --stage-height: 100dvh;
   --card-top: 26.82%;
   --hint-gap: min(5.9svh, 4.5rem);
   --card-width: min(calc(var(--stage-height) * 0.40178), 72vw);
@@ -90,7 +91,7 @@ button { font: inherit; cursor: pointer; }
 .portfolio[data-back="true"] .card-turn { transform: rotateY(180deg); }
 .portfolio:has(.lanyard-canvas[data-ready]) .card-turn { transition: none; }
 
-.portfolio[data-resumed="false"]:not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap) {
+.portfolio[data-resumed="false"]:not([data-webgl="true"]):not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap) {
   animation: badge-drop 900ms ease-in-out both;
 }
 
@@ -157,6 +158,8 @@ button { font: inherit; cursor: pointer; }
   transform: rotate(18deg);
 }
 
+.portfolio[data-webgl="true"] .fallback-strap,
+.portfolio[data-webgl="true"] .fallback-portrait,
 .portfolio:has(.lanyard-canvas) .fallback-strap,
 .portfolio:has(.lanyard-canvas) .fallback-portrait { visibility: hidden; }
 .portfolio:has(.lanyard-canvas) .card-back { background: transparent; }
@@ -351,6 +354,7 @@ button { font: inherit; cursor: pointer; }
 
 .portfolio-stage {
   height: max(280px, 100svh);
+  height: max(280px, 100dvh);
   overflow: clip;
   background: var(--page-background);
 }
@@ -359,6 +363,7 @@ button { font: inherit; cursor: pointer; }
   position: relative;
   height: 100%;
   transition: transform 1800ms var(--ease-in-out);
+  will-change: transform;
 }
 
 .portfolio-stage[data-works="true"] .portfolio-slide { transform: translateY(-100%); }
@@ -375,8 +380,10 @@ button { font: inherit; cursor: pointer; }
 
 .works-index {
   position: relative;
+  z-index: 1;
   height: 100%;
   overflow: auto;
+  overscroll-behavior: contain;
   isolation: isolate;
   transition: opacity 360ms var(--ease-out), transform 540ms var(--ease-out);
 }
@@ -387,15 +394,20 @@ button { font: inherit; cursor: pointer; }
   pointer-events: none;
 }
 
-.works-index .works-background {
+.works > .works-background {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   opacity: 0.7;
   transform: rotate(180deg);
   pointer-events: none;
   background: linear-gradient(180deg, #171717, var(--page-background) 65%);
   mask-image: linear-gradient(180deg, #000 88%, transparent);
+  transition: opacity 360ms var(--ease-out);
+}
+
+.works > .works-background[data-detail="true"] {
+  opacity: 0;
 }
 
 .works-inner {
@@ -509,6 +521,7 @@ button { font: inherit; cursor: pointer; }
 .project-detail {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: clamp(1.5rem, 4svh, 3rem);
@@ -883,7 +896,7 @@ button { font: inherit; cursor: pointer; }
   .portfolio-slide, .card-turn, .chevron,
   .gallery-image :is(img, video), .gallery-play, .gallery-expand { transition: none; }
 
-  .works-index, .project-detail { transition: opacity 140ms ease; }
+  .works-index, .works > .works-background, .project-detail { transition: opacity 140ms ease; }
   .works-index[data-detail="true"], .project-detail[data-active="false"],
   .gallery-card:is(:hover, :focus-visible) .gallery-image :is(img, video, .gallery-play, .gallery-expand) { transform: none; }
   @starting-style {

@@ -441,6 +441,7 @@ const GradientASCII = ({
   lightMode = false,
   fontFamily = DEFAULT_FONT,
   dpr,
+  active = true,
   className = '',
   style,
   ...rest
@@ -448,9 +449,13 @@ const GradientASCII = ({
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const wakeRef = useRef(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
+  const paletteKey = palette.join(',');
   const settings = {
     colors: palette.length > 1 ? palette : [palette[0], palette[0]],
+    paletteKey,
     shape: SHAPES[shape] ?? 0,
     characters: characters || DEFAULT_CHARACTERS,
     cellSize: clamp(cellSize, 6, 64),
@@ -579,9 +584,8 @@ const GradientASCII = ({
 
     const syncPalette = () => {
       const s = settingsRef.current;
-      const key = s.colors.join(',');
-      if (key === paletteKey) return;
-      paletteKey = key;
+      if (s.paletteKey === paletteKey) return;
+      paletteKey = s.paletteKey;
       s.colors.forEach((color, i) => ramp.set(toLab(parse(color)), i * 3));
     };
 
@@ -700,10 +704,12 @@ const GradientASCII = ({
         Math.max(1, Math.round(canvas.width / 2)),
         Math.max(1, Math.round(canvas.height / 2))
       );
-      const haloWidth = Math.max(1, Math.round(canvas.width / 4));
-      const haloHeight = Math.max(1, Math.round(canvas.height / 4));
-      sizeTarget(gl, haloA, haloWidth, haloHeight);
-      sizeTarget(gl, haloB, haloWidth, haloHeight);
+      if (s.glow > 0.001) {
+        const haloWidth = Math.max(1, Math.round(canvas.width / 4));
+        const haloHeight = Math.max(1, Math.round(canvas.height / 4));
+        sizeTarget(gl, haloA, haloWidth, haloHeight);
+        sizeTarget(gl, haloB, haloWidth, haloHeight);
+      }
       draw();
       wake();
     };
@@ -740,7 +746,7 @@ const GradientASCII = ({
 
     const frame = now => {
       raf = 0;
-      if (disposed || !visible || document.hidden) return;
+      if (disposed || !visible || !activeRef.current || document.hidden) return;
       if (!ready) {
         if (!gl.isContextLost() && !linked()) {
           raf = requestAnimationFrame(frame);
@@ -776,7 +782,17 @@ const GradientASCII = ({
     };
 
     function wake() {
-      if (!raf && !disposed && visible && !document.hidden) raf = requestAnimationFrame(frame);
+      if (!activeRef.current) {
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        return;
+      }
+      if (!raf && !disposed && visible && !document.hidden) {
+        last = 0;
+        raf = requestAnimationFrame(frame);
+      }
     }
 
     const locate = event => {
@@ -790,6 +806,7 @@ const GradientASCII = ({
     };
 
     const onPointerMove = event => {
+      if (!activeRef.current || !visible) return;
       locate(event);
       const s = settingsRef.current;
       if (!pointer.inside || !s.mouseInteraction || reduce) return;
@@ -809,6 +826,7 @@ const GradientASCII = ({
     };
 
     const onPointerDown = event => {
+      if (!activeRef.current || !visible) return;
       locate(event);
       const s = settingsRef.current;
       if (!pointer.inside || !s.clickEffect || reduce) return;
@@ -867,7 +885,31 @@ const GradientASCII = ({
 
   useEffect(() => {
     wakeRef.current?.();
-  });
+  }, [
+    active,
+    paletteKey,
+    shape,
+    characters,
+    cellSize,
+    density,
+    glyphOpacity,
+    glow,
+    depthOfField,
+    flicker,
+    softness,
+    scale,
+    flow,
+    speed,
+    gradientOpacity,
+    grain,
+    variation,
+    mouseInteraction,
+    scrambleRadius,
+    clickEffect,
+    lightMode,
+    fontFamily,
+    dpr
+  ]);
 
   return (
     <div
