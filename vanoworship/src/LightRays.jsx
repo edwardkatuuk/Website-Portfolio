@@ -244,12 +244,18 @@ const LightRays = ({
   lightMode = false,
   opacity = 1,
   maxDevicePixelRatio = 2,
+  active = true,
+  onReady,
   className = '',
   style
 }) => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const wakeRef = useRef(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
   const [generation, setGeneration] = useState(0);
 
   const settings = {
@@ -300,7 +306,10 @@ const LightRays = ({
       powerPreference: 'high-performance'
     });
     const shader = gl ? link(gl) : null;
-    if (!gl || !shader) return;
+    if (!gl || !shader) {
+      onReadyRef.current?.();
+      return;
+    }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const vao = gl.createVertexArray();
@@ -317,6 +326,12 @@ const LightRays = ({
     let visible = true;
     let pageVisible = document.visibilityState !== 'hidden';
     let lost = false;
+    let readyNotified = false;
+    const notifyReady = () => {
+      if (readyNotified) return;
+      readyNotified = true;
+      onReadyRef.current?.();
+    };
 
     let resizePending = false;
     const applyResize = () => {
@@ -436,6 +451,8 @@ const LightRays = ({
       gl.uniform1f(u.uLight, s.light ? 1 : 0);
       gl.uniform1f(u.uOpacity, s.opacity);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      notifyReady();
+      if (!activeRef.current) return;
 
       const settling =
         Math.abs(aim.x - aimX) > 1e-4 ||
@@ -448,7 +465,14 @@ const LightRays = ({
     };
 
     const wake = () => {
-      if (raf || lost || !visible || !pageVisible) return;
+      if (!activeRef.current && readyNotified) {
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        return;
+      }
+      if (raf || lost || (!visible && readyNotified) || !pageVisible) return;
       last = performance.now();
       raf = requestAnimationFrame(frame);
     };

@@ -442,6 +442,7 @@ const GradientASCII = ({
   fontFamily = DEFAULT_FONT,
   dpr,
   active = true,
+  onReady,
   className = '',
   style,
   ...rest
@@ -451,6 +452,8 @@ const GradientASCII = ({
   const wakeRef = useRef(null);
   const activeRef = useRef(active);
   activeRef.current = active;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   const paletteKey = palette.join(',');
   const settings = {
@@ -492,17 +495,24 @@ const GradientASCII = ({
       depth: false,
       stencil: false
     });
-    if (!container || !canvas || !gl) return undefined;
+    if (!container || !canvas || !gl) {
+      onReadyRef.current?.();
+      return undefined;
+    }
 
     const parallel = gl.getExtension('KHR_parallel_shader_compile');
     const field = link(gl, FIELD);
     const halo = link(gl, HALO);
     const blur = link(gl, BLUR);
     const composite = link(gl, COMPOSITE);
-    if (!field || !halo || !blur || !composite) return undefined;
+    if (!field || !halo || !blur || !composite) {
+      onReadyRef.current?.();
+      return undefined;
+    }
     const programs = [field, halo, blur, composite];
     if (!parallel && !programs.every(item => resolve(gl, item))) {
       programs.forEach(item => gl.deleteProgram(item.program));
+      onReadyRef.current?.();
       return undefined;
     }
     const vao = gl.createVertexArray();
@@ -551,6 +561,12 @@ const GradientASCII = ({
     let visible = true;
     let disposed = false;
     let ready = !parallel;
+    let readyNotified = false;
+    const notifyReady = () => {
+      if (readyNotified || disposed) return;
+      readyNotified = true;
+      onReadyRef.current?.();
+    };
 
     const linked = () =>
       !parallel || programs.every(item => gl.getProgramParameter(item.program, parallel.COMPLETION_STATUS_KHR));
@@ -746,18 +762,22 @@ const GradientASCII = ({
 
     const frame = now => {
       raf = 0;
-      if (disposed || !visible || !activeRef.current || document.hidden) return;
+      if (disposed || document.hidden) return;
       if (!ready) {
         if (!gl.isContextLost() && !linked()) {
           raf = requestAnimationFrame(frame);
           return;
         }
         if (!programs.every(item => resolve(gl, item))) {
+          notifyReady();
           dispose();
           return;
         }
         ready = true;
+        draw();
       }
+      notifyReady();
+      if (!visible || !activeRef.current) return;
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.001, 0.05) : 1 / 60;
       last = now;
@@ -782,14 +802,14 @@ const GradientASCII = ({
     };
 
     function wake() {
-      if (!activeRef.current) {
+      if (!activeRef.current && readyNotified) {
         if (raf) {
           cancelAnimationFrame(raf);
           raf = 0;
         }
         return;
       }
-      if (!raf && !disposed && visible && !document.hidden) {
+      if (!raf && !disposed && (visible || !readyNotified) && !document.hidden) {
         last = 0;
         raf = requestAnimationFrame(frame);
       }

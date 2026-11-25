@@ -58,6 +58,48 @@ button { font: inherit; cursor: pointer; }
     radial-gradient(ellipse 46% 47% at 50% -8%, #e8effb 0%, #578bc0 48%, transparent 100%),
     radial-gradient(ellipse 95% 72% at 50% 0%, #34aadb 5%, #1a285d 62%, #090909 100%);
 }
+.portfolio:not([data-ready="true"]) .ascii,
+.portfolio:not([data-ready="true"]) .hint span {
+  opacity: 0;
+  animation: none;
+}
+
+.stage-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--page-background);
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-out);
+}
+.stage-loader[data-ready="true"] {
+  opacity: 0;
+}
+.stage-loader-bar {
+  width: min(128px, 34vw);
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  overflow: hidden;
+  opacity: 0;
+  animation: loader-appear 240ms ease 140ms forwards;
+}
+.stage-loader-bar::after {
+  content: '';
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cyan);
+  animation: loader-sweep 1.1s ease-in-out infinite;
+}
+@keyframes loader-appear { to { opacity: 1; } }
+@keyframes loader-sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(260%); }
+}
 .portfolio .ascii::after {
   content: '';
   position: absolute;
@@ -90,7 +132,7 @@ button { font: inherit; cursor: pointer; }
 .portfolio[data-back="true"] .card-turn { transform: rotateY(180deg); }
 .portfolio:has(.lanyard-canvas[data-ready]) .card-turn { transition: none; }
 
-.portfolio[data-resumed="false"]:not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap) {
+.portfolio[data-ready="true"][data-resumed="false"]:not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap) {
   animation: badge-drop 900ms ease-in-out both;
 }
 
@@ -897,5 +939,6 @@ button { font: inherit; cursor: pointer; }
   .portfolio-stage[data-works="true"] :is(.works-title, .works-inner > .works-back, .works-grid li),
   .portfolio[data-back="true"] .card-menu .card-action, .card-about, .card-about-bio, .card-about-actions,
   .project-info, .gallery-grid, .portfolio .ascii, .hint span,
-  .portfolio:not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap) { animation: none; }
+  .portfolio:not(:has(.lanyard-canvas)) :is(.card-turn, .fallback-strap),
+  .stage-loader-bar, .stage-loader-bar::after { animation: none; }
 }

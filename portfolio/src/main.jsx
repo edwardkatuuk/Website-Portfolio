@@ -1,4 +1,4 @@
-import { lazy, startTransition, Suspense, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, startTransition, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-600.css';
@@ -23,6 +23,12 @@ function Portfolio() {
   const [worksOpen, setShowsWorks] = useState(null);
   const showsWorks = worksOpen === true;
   const [activeProject, setActiveProject] = useState(null);
+  const [fontsReady, setFontsReady] = useState(false);
+  const [asciiReady, setAsciiReady] = useState(false);
+  const [lanyardReady, setLanyardReady] = useState(false);
+  const [siteReady, setSiteReady] = useState(false);
+  const handleAsciiReady = useCallback(() => setAsciiReady(true), []);
+  const handleLanyardReady = useCallback(() => setLanyardReady(true), []);
   const turn = useRef(null);
   const front = useRef(null);
   const firstEntry = useRef(null);
@@ -133,13 +139,41 @@ function Portfolio() {
     vanoLink.current.focus({ preventScroll: true });
   }, [returnedFromVano]);
 
+  useEffect(() => {
+    let active = true;
+    const readyFonts = document.fonts?.ready || Promise.resolve();
+    readyFonts.then(() => {
+      if (active) setFontsReady(true);
+    }, () => {
+      if (active) setFontsReady(true);
+    });
+    const fallbackTimer = setTimeout(() => {
+      if (active) setSiteReady(true);
+    }, 3500);
+    return () => {
+      active = false;
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (siteReady || !(fontsReady && asciiReady && lanyardReady)) return;
+    const rafId = requestAnimationFrame(() => setSiteReady(true));
+    return () => cancelAnimationFrame(rafId);
+  }, [siteReady, fontsReady, asciiReady, lanyardReady]);
+
   return (
     <main className="portfolio-stage" data-works={showsWorks} onKeyDown={handleEscape}>
+      <div className="stage-loader" data-ready={siteReady} aria-hidden={siteReady}>
+        <div className="stage-loader-bar" />
+      </div>
       <div className="portfolio-slide">
-        <div className="portfolio" data-back={flipped} data-resumed={returnedFromVano} inert={showsWorks}>
+        <div className="portfolio" data-ready={siteReady} data-back={flipped} data-resumed={returnedFromVano} inert={showsWorks || !siteReady}>
           <GradientASCII
             className="ascii"
             aria-hidden="true"
+            active={siteReady}
+            onReady={handleAsciiReady}
             colors={['#191e57', '#263d8e', '#4c9cd1', '#42c4ed', '#f1f5ff']}
             shape="horizon"
             characters=" +xX0S8#@"
@@ -161,6 +195,8 @@ function Portfolio() {
 
           <Lanyard
             className="scene"
+            paused={!siteReady}
+            onReady={handleLanyardReady}
             frontImage={portrait}
             cardColor="#eaeaea"
             strapColor="#151515"

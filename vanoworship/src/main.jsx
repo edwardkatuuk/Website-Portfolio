@@ -1,10 +1,12 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Coffee, Download, Heart, Instagram, Mail, MonitorDown, QrCode, X } from 'lucide-react';
 import { domAnimation, LazyMotion } from 'motion/react';
 import logo from '../Assets/LOGO VANOWORSHIP.webp';
 import laptop from '../Assets/laptop.webp';
 import laptopMobile from '../Assets/laptop-mobile.webp';
+import desktopBg from '../Assets/DESKTOP BACKGROUND.jpg';
+import mobileBg from '../Assets/MOBILE DESKTOP.jpg';
 import './styles.css';
 import LightRays from './LightRays';
 import { TextAnimate } from './text-animate';
@@ -45,18 +47,68 @@ function ActionDialog({ dialogRef, id, title, Icon, children }) {
   );
 }
 
+function preloadImage(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => (img.decode?.().catch(() => {}) || Promise.resolve()).then(resolve);
+    img.onerror = resolve;
+    img.src = src;
+  });
+}
+
 function LandingPage() {
   const supportDialog = useRef(null);
   const downloadDialog = useRef(null);
+  const [assetsReady, setAssetsReady] = useState(false);
+  const [raysReady, setRaysReady] = useState(false);
+  const [siteReady, setSiteReady] = useState(false);
+  const handleRaysReady = useCallback(() => setRaysReady(true), []);
+
+  useEffect(() => {
+    let active = true;
+    const isMobile = window.matchMedia?.('(max-width: 760px), (max-aspect-ratio: 1/1)').matches;
+    const criticalImages = [
+      logo,
+      isMobile ? laptopMobile : laptop,
+      isMobile ? mobileBg : desktopBg
+    ];
+    Promise.all([
+      document.fonts?.ready || Promise.resolve(),
+      ...criticalImages.map(preloadImage)
+    ]).then(() => {
+      if (active) setAssetsReady(true);
+    }, () => {
+      if (active) setAssetsReady(true);
+    });
+    const fallbackTimer = setTimeout(() => {
+      if (active) setSiteReady(true);
+    }, 3500);
+    return () => {
+      active = false;
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (siteReady || !(assetsReady && raysReady)) return;
+    const rafId = requestAnimationFrame(() => setSiteReady(true));
+    return () => cancelAnimationFrame(rafId);
+  }, [siteReady, assetsReady, raysReady]);
+
   const downloadLabel = <>
     <span className="action-icon"><Download aria-hidden="true" /></span>
     <span>Download <small>for Windows</small></span>
   </>;
 
   return (
-    <main className="hero" aria-labelledby="hero-title">
+    <main className="hero" data-ready={siteReady} aria-labelledby="hero-title">
+      <div className="stage-loader" data-ready={siteReady} aria-hidden={siteReady}>
+        <div className="stage-loader-bar" />
+      </div>
       <LightRays
         className="hero-rays"
+        active={siteReady}
+        onReady={handleRaysReady}
         raysOrigin="top-left"
         raysColor="#ffb06e"
         raysSpeed={1}
@@ -71,25 +123,31 @@ function LandingPage() {
       <img className="brand enter" src={logo} alt="VanoWorship" />
       <h1 id="hero-title" className="headline">
         <span className="text-animate-readable">Premium Features, Zero Cost with VanoWorship</span>
-        <span className="headline-line" aria-hidden="true">
-          <TextAnimate {...slideUpWords}>Premium Features,</TextAnimate>
-        </span>
-        <span className="headline-line" aria-hidden="true">
-          <em><TextAnimate {...slideUpWords} delay={0.23}>Zero Cost</TextAnimate></em>{' '}
-          <TextAnimate {...slideUpWords} delay={0.46}>with</TextAnimate>
-        </span>
-        <span className="headline-line" aria-hidden="true">
-          <TextAnimate {...slideUpWords} delay={0.62}>VanoWorship</TextAnimate>
-        </span>
+        {siteReady && (
+          <>
+            <span className="headline-line" aria-hidden="true">
+              <TextAnimate {...slideUpWords}>Premium Features,</TextAnimate>
+            </span>
+            <span className="headline-line" aria-hidden="true">
+              <em><TextAnimate {...slideUpWords} delay={0.23}>Zero Cost</TextAnimate></em>{' '}
+              <TextAnimate {...slideUpWords} delay={0.46}>with</TextAnimate>
+            </span>
+            <span className="headline-line" aria-hidden="true">
+              <TextAnimate {...slideUpWords} delay={0.62}>VanoWorship</TextAnimate>
+            </span>
+          </>
+        )}
       </h1>
       <p className="description">
         <span className="text-animate-readable">{heroDescription.join(' ')}</span>
-        <span aria-hidden="true">
-          <TextAnimate {...slideUpWords} delay={0.5} duration={0.45}>{heroDescription[0]}</TextAnimate>
-          <br className="desktop-break" />{' '}
-          <TextAnimate {...slideUpWords} delay={0.75} duration={0.53}>{heroDescription[1]}</TextAnimate>{' '}
-          <em><TextAnimate {...slideUpWords} delay={1.15}>{heroDescription[2]}</TextAnimate></em>
-        </span>
+        {siteReady && (
+          <span aria-hidden="true">
+            <TextAnimate {...slideUpWords} delay={0.5} duration={0.45}>{heroDescription[0]}</TextAnimate>
+            <br className="desktop-break" />{' '}
+            <TextAnimate {...slideUpWords} delay={0.75} duration={0.53}>{heroDescription[1]}</TextAnimate>{' '}
+            <em><TextAnimate {...slideUpWords} delay={1.15}>{heroDescription[2]}</TextAnimate></em>
+          </span>
+        )}
       </p>
       <img
         className="laptop enter"

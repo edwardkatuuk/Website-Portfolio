@@ -720,6 +720,8 @@ const Lanyard = ({
   breeze = 0.5,
   interactive = true,
   intro = true,
+  paused = false,
+  onReady,
   flipped,
   onFlip,
   overlayRef,
@@ -729,6 +731,10 @@ const Lanyard = ({
   const containerRef = useRef(null);
   const settingsRef = useRef(null);
   const applyRef = useRef(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   settingsRef.current = {
     frontImage,
@@ -768,6 +774,7 @@ const Lanyard = ({
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     } catch {
+      onReadyRef.current?.();
       return undefined;
     }
     renderer.setClearColor(0x000000, 0);
@@ -1012,7 +1019,13 @@ const Lanyard = ({
           loadImage(imageCache, s.frontImage),
           loadImage(imageCache, s.backImage),
           loadImage(imageCache, s.strapImage)
-        ]).then(([front, back, strap]) => {
+        ]).then(async ([front, back, strap]) => {
+          if (!alive || token !== imageToken) return;
+          await Promise.all([
+            front?.decode?.().catch(() => {}),
+            back?.decode?.().catch(() => {}),
+            strap?.decode?.().catch(() => {})
+          ]);
           if (!alive || token !== imageToken) return;
           images.front = front;
           images.back = back;
@@ -1020,7 +1033,9 @@ const Lanyard = ({
           paintFaces();
           repaintStrap();
           canvas.dataset.ready = '';
+          renderer.compile(scene, camera);
           render();
+          onReadyRef.current?.();
           start();
         });
       }
@@ -1195,7 +1210,7 @@ const Lanyard = ({
 
     const tick = now => {
       raf = 0;
-      if (!alive) return;
+      if (!alive || pausedRef.current) return;
       const dt = Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000));
       last = now;
       time += dt;
@@ -1213,6 +1228,13 @@ const Lanyard = ({
     };
 
     const start = () => {
+      if (pausedRef.current) {
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        return;
+      }
       if (raf || !visible || !alive || (controlled && !canvas.hasAttribute('data-ready'))) return;
       sim.calm = 0;
       last = performance.now();
