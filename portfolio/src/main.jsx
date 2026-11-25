@@ -1,26 +1,16 @@
-import { lazy, startTransition, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, startTransition, Suspense, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-600.css';
 import GradientASCII from './components/GradientASCII';
+import Lanyard from './components/Lanyard';
 import portrait from '../Assets/edward-badge.webp';
 import contacts from './contacts.json';
 import './styles.css';
 
-const loadLanyard = () => import('./components/Lanyard');
-const Lanyard = lazy(loadLanyard);
 const loadWorks = () => import('./components/Works');
 const Works = lazy(loadWorks);
 const sections = ['About Me', 'My Works'];
-
-const hasWebGL = (() => {
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl2') || canvas.getContext('webgl'));
-  } catch {
-    return false;
-  }
-})();
 
 function prefetchWorks() {
   loadWorks().catch(() => {});
@@ -32,7 +22,6 @@ function Portfolio() {
   const [cardPage, setCardPage] = useState(returnedFromVano ? 'menu-returned' : 'menu');
   const [worksOpen, setShowsWorks] = useState(null);
   const showsWorks = worksOpen === true;
-  const [stageSettledOffscreen, setStageSettledOffscreen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
   const turn = useRef(null);
   const front = useRef(null);
@@ -108,8 +97,8 @@ function Portfolio() {
       ? Array.from(aboutPanel.current.children)
       : Array.from(cardMenu.current.children);
     const styles = getComputedStyle(cardBack.current);
-    const duration = parseFloat(styles.getPropertyValue('--card-content-duration')) || 850;
-    const stagger = parseFloat(styles.getPropertyValue('--card-menu-stagger')) || 55;
+    const duration = parseFloat(styles.getPropertyValue('--card-content-duration'));
+    const stagger = parseFloat(styles.getPropertyValue('--card-menu-stagger'));
     const animations = elements.map((element, index) => {
       const { opacity, transform } = getComputedStyle(element);
       return element.animate(
@@ -144,23 +133,13 @@ function Portfolio() {
     vanoLink.current.focus({ preventScroll: true });
   }, [returnedFromVano]);
 
-  useEffect(() => {
-    if (!showsWorks) {
-      setStageSettledOffscreen(false);
-      return;
-    }
-    const timer = setTimeout(() => setStageSettledOffscreen(true), 1850);
-    return () => clearTimeout(timer);
-  }, [showsWorks]);
-
   return (
     <main className="portfolio-stage" data-works={showsWorks} onKeyDown={handleEscape}>
       <div className="portfolio-slide">
-        <div className="portfolio" data-back={flipped} data-resumed={returnedFromVano} data-webgl={hasWebGL} inert={showsWorks}>
+        <div className="portfolio" data-back={flipped} data-resumed={returnedFromVano} inert={showsWorks}>
           <GradientASCII
             className="ascii"
             aria-hidden="true"
-            active={!stageSettledOffscreen}
             colors={['#191e57', '#263d8e', '#4c9cd1', '#42c4ed', '#f1f5ff']}
             shape="horizon"
             characters=" +xX0S8#@"
@@ -180,29 +159,26 @@ function Portfolio() {
             clickEffect="wave"
           />
 
-          <Suspense fallback={null}>
-            <Lanyard
-              className="scene"
-              active={!stageSettledOffscreen}
-              frontImage={portrait}
-              cardColor="#eaeaea"
-              strapColor="#151515"
-              strapWidth={0.68}
-              finish="matte"
-              cornerRadius={0.25}
-              size={0.565}
-              strapLength={0.494}
-              gravity={0.5}
-              damping={0.61}
-              elasticity={0.74}
-              breeze={0.5}
-              intro={!returnedFromVano}
-              interactive
-              flipped={flipped}
-              onFlip={flip}
-              overlayRef={turn}
-            />
-          </Suspense>
+          <Lanyard
+            className="scene"
+            frontImage={portrait}
+            cardColor="#eaeaea"
+            strapColor="#151515"
+            strapWidth={0.68}
+            finish="matte"
+            cornerRadius={0.25}
+            size={0.565}
+            strapLength={0.494}
+            gravity={0.5}
+            damping={0.61}
+            elasticity={0.74}
+            breeze={0.5}
+            intro={!returnedFromVano}
+            interactive
+            flipped={flipped}
+            onFlip={flip}
+            overlayRef={turn}
+          />
 
           <div className="card-space">
             <div className="fallback-strap" aria-hidden="true"><i /></div>
