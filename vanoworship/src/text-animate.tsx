@@ -423,21 +423,25 @@ const TextAnimateBase = ({
         {...props}
       >
         {accessible && <span className="text-animate-readable">{children}</span>}
-        {segments.map((segment, i) => (
-          <m.span
-            key={`${by}-${segment}-${i}`}
-            variants={reducedMotion ? undefined : finalVariants.item}
-            custom={i * staggerTimings[by]}
-            className={cn(
-              by === "line" ? "text-animate-line" : "text-animate-segment",
-              by === "character" && "",
-              segmentClassName
-            )}
-            aria-hidden={accessible ? true : undefined}
-          >
-            {segment}
-          </m.span>
-        ))}
+        {segments.map((segment, i) =>
+          by === "word" && /^\s+$/.test(segment) ? (
+            " "
+          ) : (
+            <m.span
+              key={`${by}-${segment}-${i}`}
+              variants={reducedMotion ? undefined : finalVariants.item}
+              custom={i * staggerTimings[by]}
+              className={cn(
+                by === "line" ? "text-animate-line" : "text-animate-segment",
+                by === "character" && "",
+                segmentClassName
+              )}
+              aria-hidden={accessible ? true : undefined}
+            >
+              {segment}
+            </m.span>
+          )
+        )}
       </MotionComponent>
     </AnimatePresence>
   )
