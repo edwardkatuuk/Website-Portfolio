@@ -11,7 +11,6 @@ import {
   Play,
   QrCode,
   Radio,
-  RotateCcw,
   Sparkles,
   WifiOff,
 } from 'lucide-react';
@@ -63,7 +62,7 @@ const ANIM_PRESETS = [
   },
   {
     keyframe: 'none',
-    duration: 7,
+    duration: 4,
     ease: 'cubic-bezier(.16,1,.3,1)',
     blurRadius: 5,
   },
@@ -226,6 +225,7 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
                         <span className="vw-play-circle" aria-hidden="true">
                           <Play size={24} fill="currentColor" />
                         </span>
+                        <span className="vw-stage-soon">{t.showcase.statusSoon}</span>
                         <h3>{activeChapter.title}</h3>
                         <p>{activeChapter.summary}</p>
                       </div>
@@ -290,7 +290,11 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
             </div>
           </aside>
 
-          <div className="vw-studio-stage" role="tabpanel" aria-label={activeFeature.title}>
+          <div
+            className={`vw-studio-stage${activeFeature.id === 'anim' ? ' is-expanded' : ''}`}
+            role="tabpanel"
+            aria-label={activeFeature.title}
+          >
             <div className="vw-detail-toolbar">
               <div className="vw-toolbar-meta">
                 <span className="vw-studio-toolbar-icon" aria-hidden="true">
@@ -298,9 +302,6 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
                 </span>
                 <strong>{activeFeature.title}</strong>
               </div>
-              <span className="vw-stage-status">
-                <i aria-hidden="true" /> {activeFeature.tag}
-              </span>
             </div>
 
             <div className="vw-studio-canvas">
@@ -325,20 +326,6 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
                 return (
                   <div className="vw-demo-anim">
                     <div className="vw-demo-lyric-box">
-                      <div className="vw-stage-hud">
-                        <span className="vw-hud-chip">
-                          <i aria-hidden="true" /> Dolly In
-                        </span>
-                        <button
-                          type="button"
-                          className="vw-hud-replay"
-                          onClick={() => setReplayTick(v => v + 1)}
-                          aria-label={lang === 'id' ? 'Putar ulang animasi' : 'Replay animation'}
-                        >
-                          <span>{animPreset.duration}s</span>
-                          <RotateCcw size={12} aria-hidden="true" />
-                        </button>
-                      </div>
                       <span
                         key={`${activeFeatureId}-${activePresetIdx}-${replayTick}`}
                         className={`vw-demo-lyric${animPreset.cameraScene ? ' is-camera-scene' : ''}${animPreset.accent ? ' has-sweep' : ''}`}
@@ -506,13 +493,15 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
               )}
             </div>
 
-            <div className="vw-studio-footer">
-              <p>{activeFeature.summary}</p>
-              <div className="vw-studio-spec">
-                <span>{activeFeature.specLabel}</span>
-                <strong>{activeFeature.specValue}</strong>
+            {activeFeature.id !== 'anim' && (
+              <div className="vw-studio-footer">
+                <p>{activeFeature.summary}</p>
+                <div className="vw-studio-spec">
+                  <span>{activeFeature.specLabel}</span>
+                  <strong>{activeFeature.specValue}</strong>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </SpotlightSurface>
       </section>
