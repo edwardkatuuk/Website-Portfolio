@@ -92,7 +92,7 @@ const stageDeckRevealProps = {
   transition: { duration: 1.3, delay: 0.14, ease: easeOutCubic },
 };
 
-export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDownloadFallback, onOpenSupport }) {
+export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDownloadFallback, onOpenSupport, onReady }) {
   const t = copy[lang] || copy.en;
   const chapters = t.showcase.chapters;
   const features = t.purpose.features;
@@ -132,7 +132,8 @@ export const Showcase = memo(function Showcase({ lang = 'en', downloadUrl, onDow
             detail={0}
             morph={1}
             parallax={1}
-            dpr={1.5}
+            dpr={1.25}
+            onReady={onReady}
           />
           <div className="vw-topography-fade" />
         </div>

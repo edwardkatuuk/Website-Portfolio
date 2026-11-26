@@ -697,12 +697,15 @@ const Topography = ({
   lightMode = false,
   dpr,
   className = '',
-  style
+  style,
+  onReady
 }) => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const wakeRef = useRef(null);
   const releaseRef = useRef(0);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
   const [generation, setGeneration] = useState(0);
   const settings = {
     color,
@@ -750,9 +753,19 @@ const Topography = ({
       stencil: false,
       powerPreference: 'high-performance'
     });
-    if (!container || !canvas || !gl) return undefined;
+    if (!container || !canvas || !gl) {
+      onReadyRef.current?.();
+      return undefined;
+    }
     cancelAnimationFrame(releaseRef.current);
     releaseRef.current = 0;
+
+    let readyNotified = false;
+    const notifyReady = () => {
+      if (readyNotified) return;
+      readyNotified = true;
+      onReadyRef.current?.();
+    };
 
     const parallel = gl.getExtension('KHR_parallel_shader_compile');
     const floatTargets = !!gl.getExtension('EXT_color_buffer_float');
@@ -763,7 +776,10 @@ const Topography = ({
     const blurProgram = link(gl, FULLSCREEN, BLUR);
     const compositeProgram = link(gl, FULLSCREEN, COMPOSITE);
     const markerProgram = link(gl, MARKER_VERTEX, MARKER_FRAGMENT);
-    if (!terrain || !downProgram || !blurProgram || !compositeProgram || !markerProgram) return undefined;
+    if (!terrain || !downProgram || !blurProgram || !compositeProgram || !markerProgram) {
+      notifyReady();
+      return undefined;
+    }
     const current = () =>
       [terrain, fieldProgram, sculptProgram, downProgram, blurProgram, compositeProgram, markerProgram].filter(Boolean);
     const linked = () =>
@@ -780,6 +796,7 @@ const Topography = ({
     };
     if (!parallel && !settle()) {
       current().forEach(item => gl.deleteProgram(item.program));
+      notifyReady();
       return undefined;
     }
 
@@ -1297,13 +1314,17 @@ const Topography = ({
       view.ratio = Math.min(s.dpr || window.devicePixelRatio || 1, 2);
       canvas.width = Math.max(1, Math.round(view.width * view.ratio));
       canvas.height = Math.max(1, Math.round(view.height * view.ratio));
-      render();
-      wake();
+      if (ready) {
+        render();
+        wake();
+      } else if (!raf && !document.hidden) {
+        raf = requestAnimationFrame(frame);
+      }
     };
 
     const frame = now => {
       raf = 0;
-      if (!visible || document.hidden) return;
+      if (ready && (!visible || document.hidden)) return;
       if (!ready) {
         if (gl.isContextLost()) return;
         if (!linked()) {
@@ -1311,6 +1332,7 @@ const Topography = ({
           return;
         }
         if (!settle()) {
+          notifyReady();
           dispose();
           return;
         }
@@ -1323,6 +1345,8 @@ const Topography = ({
         }
         ready = true;
         render();
+        notifyReady();
+        if (!visible || document.hidden) return;
       }
       const s = settingsRef.current;
       if (s.dpr !== sizedDpr) resize();
@@ -1550,6 +1574,7 @@ const Topography = ({
     };
 
     resize();
+    if (!ready && !raf) raf = requestAnimationFrame(frame);
     wakeRef.current = wake;
 
     return () => {

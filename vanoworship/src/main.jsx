@@ -43,9 +43,32 @@ function ActionDialog({ dialogRef, id, title, closeLabel, Icon, children }) {
 function preloadImage(src) {
   return new Promise(resolve => {
     const img = new Image();
-    img.onload = () => (img.decode?.().catch(() => {}) || Promise.resolve()).then(resolve);
+    const finish = () => {
+      const decoded = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+      decoded.then(() => {
+        if (typeof createImageBitmap === 'function' && img.naturalWidth > 0) {
+          return createImageBitmap(img).then(bmp => {
+            bmp.close?.();
+          }).catch(() => {});
+        }
+        return undefined;
+      }).then(resolve, resolve);
+    };
+    img.onload = finish;
     img.onerror = resolve;
     img.src = src;
+    if (img.complete && img.naturalWidth > 0) finish();
+  });
+}
+
+function waitFrames(count) {
+  return new Promise(resolve => {
+    let remaining = count;
+    const step = () => {
+      if (--remaining <= 0) resolve();
+      else requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   });
 }
 
@@ -53,10 +76,14 @@ function LandingPage() {
   const heroRef = useRef(null);
   const supportDialog = useRef(null);
   const downloadDialog = useRef(null);
+  const mountedAtRef = useRef(performance.now());
   const [lang, setLang] = useState('en');
   const [hasSwitchedLang, setHasSwitchedLang] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
+  const [fontsReady, setFontsReady] = useState(false);
+  const [imagesReady, setImagesReady] = useState(false);
+  const [showcaseLoaded, setShowcaseLoaded] = useState(false);
   const [raysReady, setRaysReady] = useState(false);
+  const [topoReady, setTopoReady] = useState(false);
   const [siteReady, setSiteReady] = useState(false);
 
   const prefersReducedMotion = useReducedMotion();
@@ -65,6 +92,7 @@ function LandingPage() {
   const bgScale = useTransform(scrollYProgress, [0, 1], [1.04, 1.13]);
 
   const handleRaysReady = useCallback(() => setRaysReady(true), []);
+  const handleTopoReady = useCallback(() => setTopoReady(true), []);
   const handleSelectLang = useCallback((nextLang) => {
     if (nextLang === lang) return;
     setHasSwitchedLang(true);
@@ -72,6 +100,8 @@ function LandingPage() {
   }, [lang]);
 
   const t = copy[lang] || copy.en;
+  const completedStages = [fontsReady, imagesReady, showcaseLoaded, raysReady, topoReady].filter(Boolean).length;
+  const bootProgress = siteReady ? 1 : Math.max(0.14, completedStages / 5);
 
   useEffect(() => {
     document.documentElement.lang = t.langCode;
@@ -85,17 +115,31 @@ function LandingPage() {
       isMobile ? laptopMobile : laptop,
       desktopBg
     ];
-    Promise.all([
-      document.fonts?.ready || Promise.resolve(),
-      ...criticalImages.map(preloadImage)
-    ]).then(() => {
-      if (active) setAssetsReady(true);
-    }, () => {
-      if (active) setAssetsReady(true);
-    });
+
+    (document.fonts?.ready || Promise.resolve()).then(
+      () => { if (active) setFontsReady(true); },
+      () => { if (active) setFontsReady(true); }
+    );
+
+    Promise.all(criticalImages.map(preloadImage)).then(
+      () => { if (active) setImagesReady(true); },
+      () => { if (active) setImagesReady(true); }
+    );
+
+    loadShowcase().then(
+      () => { if (active) setShowcaseLoaded(true); },
+      () => {
+        if (active) {
+          setShowcaseLoaded(true);
+          setTopoReady(true);
+        }
+      }
+    );
+
     const fallbackTimer = setTimeout(() => {
       if (active) setSiteReady(true);
-    }, 3500);
+    }, 9000);
+
     return () => {
       active = false;
       clearTimeout(fallbackTimer);
@@ -103,14 +147,24 @@ function LandingPage() {
   }, []);
 
   useEffect(() => {
-    if (siteReady || !(assetsReady && raysReady)) return;
-    const rafId = requestAnimationFrame(() => setSiteReady(true));
-    return () => cancelAnimationFrame(rafId);
-  }, [siteReady, assetsReady, raysReady]);
+    if (siteReady || !(fontsReady && imagesReady && showcaseLoaded && raysReady && topoReady)) return;
+    let active = true;
+    const minCalmDwell = prefersReducedMotion ? 120 : 1100;
+    const elapsed = performance.now() - mountedAtRef.current;
+    const delayMs = Math.max(0, minCalmDwell - elapsed);
 
-  useEffect(() => {
-    if (siteReady) loadShowcase().catch(() => {});
-  }, [siteReady]);
+    const dwellTimer = setTimeout(() => {
+      if (!active) return;
+      waitFrames(prefersReducedMotion ? 1 : 3).then(() => {
+        if (active) setSiteReady(true);
+      });
+    }, delayMs);
+
+    return () => {
+      active = false;
+      clearTimeout(dwellTimer);
+    };
+  }, [siteReady, fontsReady, imagesReady, showcaseLoaded, raysReady, topoReady, prefersReducedMotion]);
 
   const supportOptions = [
     { name: 'Saweria', detail: t.dialogs.saweriaDetail, url: 'https://saweria.co/EdwardKatuuk', Icon: QrCode },
@@ -145,7 +199,9 @@ function LandingPage() {
 
       <main className="hero" ref={heroRef} data-ready={siteReady} aria-labelledby="hero-title">
       <div className="stage-loader" data-ready={siteReady} aria-hidden={siteReady}>
-        <div className="stage-loader-bar" />
+        <div className="stage-loader-track">
+          <div className="stage-loader-fill" style={{ '--boot-progress': bootProgress }} />
+        </div>
       </div>
       <div className="hero-bg-wrap" aria-hidden="true">
         <m.div
@@ -183,35 +239,31 @@ function LandingPage() {
         <img className="brand enter" src={logo} alt="VanoWorship" />
         <h1 id="hero-title" className="headline">
           <span className="text-animate-readable">{t.hero.srTitle}</span>
-          {siteReady && (
-            <span key={lang}>
-              <span className="headline-line" aria-hidden="true">
-                <TextAnimate {...slideUpWords} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line1}</TextAnimate>
-              </span>
-              <span className="headline-line" aria-hidden="true">
-                <em><TextAnimate {...slideUpWords} delay={hasSwitchedLang ? 0.04 : 0.25} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line2Em}</TextAnimate></em>{' '}
-                <TextAnimate {...slideUpWords} delay={hasSwitchedLang ? 0.08 : 0.48} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line2Rest}</TextAnimate>
-              </span>
-              <span className="headline-line" aria-hidden="true">
-                <TextAnimate {...slideUpWords} delay={hasSwitchedLang ? 0.12 : 0.68} duration={hasSwitchedLang ? 0.35 : 0.9}>{t.hero.line3}</TextAnimate>
-              </span>
+          <span key={lang}>
+            <span className="headline-line" aria-hidden="true">
+              <TextAnimate {...slideUpWords} play={siteReady} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line1}</TextAnimate>
             </span>
-          )}
+            <span className="headline-line" aria-hidden="true">
+              <em><TextAnimate {...slideUpWords} play={siteReady} delay={hasSwitchedLang ? 0.04 : 0.25} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line2Em}</TextAnimate></em>{' '}
+              <TextAnimate {...slideUpWords} play={siteReady} delay={hasSwitchedLang ? 0.08 : 0.48} duration={hasSwitchedLang ? 0.35 : 0.85}>{t.hero.line2Rest}</TextAnimate>
+            </span>
+            <span className="headline-line" aria-hidden="true">
+              <TextAnimate {...slideUpWords} play={siteReady} delay={hasSwitchedLang ? 0.12 : 0.68} duration={hasSwitchedLang ? 0.35 : 0.9}>{t.hero.line3}</TextAnimate>
+            </span>
+          </span>
         </h1>
         <p className="description">
           <span className="text-animate-readable">{`${t.hero.desc1} ${t.hero.desc2} ${t.hero.descEm}`}</span>
-          {siteReady && (
-            <span key={lang} aria-hidden="true">
-              <TextAnimate {...slideUpWords} delay={hasSwitchedLang ? 0.06 : 0.5} duration={hasSwitchedLang ? 0.38 : 1.05}>
-                {`${t.hero.desc1} ${t.hero.desc2}`}
-              </TextAnimate>{' '}
-              <em>
-                <TextAnimate {...slideUpWords} delay={hasSwitchedLang ? 0.14 : 1.05} duration={hasSwitchedLang ? 0.38 : 1.15}>
-                  {t.hero.descEm}
-                </TextAnimate>
-              </em>
-            </span>
-          )}
+          <span key={lang} aria-hidden="true">
+            <TextAnimate {...slideUpWords} play={siteReady} delay={hasSwitchedLang ? 0.06 : 0.5} duration={hasSwitchedLang ? 0.38 : 1.05}>
+              {`${t.hero.desc1} ${t.hero.desc2}`}
+            </TextAnimate>{' '}
+            <em>
+              <TextAnimate {...slideUpWords} play={siteReady} delay={hasSwitchedLang ? 0.14 : 1.05} duration={hasSwitchedLang ? 0.38 : 1.15}>
+                {t.hero.descEm}
+              </TextAnimate>
+            </em>
+          </span>
         </p>
         <picture className="laptop-picture">
           <source media="(max-width: 760px), (max-aspect-ratio: 1/1)" srcSet={laptopMobile} />
@@ -242,16 +294,15 @@ function LandingPage() {
       </div>
       </main>
 
-      {siteReady && (
-        <Suspense fallback={null}>
-          <Showcase
-            lang={lang}
-            downloadUrl={downloadUrl}
-            onDownloadFallback={() => downloadDialog.current?.showModal()}
-            onOpenSupport={() => supportDialog.current?.showModal()}
-          />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <Showcase
+          lang={lang}
+          downloadUrl={downloadUrl}
+          onDownloadFallback={() => downloadDialog.current?.showModal()}
+          onOpenSupport={() => supportDialog.current?.showModal()}
+          onReady={handleTopoReady}
+        />
+      </Suspense>
 
       <ActionDialog dialogRef={supportDialog} id="support" title={t.dialogs.supportTitle} closeLabel={t.dialogs.dismiss} Icon={Heart}>
         <p>{t.dialogs.supportBody}</p>

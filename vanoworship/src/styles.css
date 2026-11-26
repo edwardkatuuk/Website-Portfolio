@@ -396,12 +396,15 @@ button { font: inherit; }
 
 .enter {
   --entrance-duration: 2s;
+  will-change: transform, opacity;
   animation: enter var(--entrance-duration) ease-out var(--delay, 0ms) both;
 }
 
 .hero:not([data-ready="true"]) .enter,
 .hero:not([data-ready="true"]) .laptop.enter {
-  opacity: 0;
+  opacity: 0.001;
+  transform: translate3d(var(--enter-x, 0), var(--enter-y, 20px), 0)
+    rotate(var(--enter-rotation, 0deg)) scale(var(--enter-scale, 1));
   animation: none;
 }
 
@@ -412,32 +415,29 @@ button { font: inherit; }
   display: grid;
   place-items: center;
   background: var(--bg-app);
-  pointer-events: none;
-  transition: opacity 420ms var(--ease-out);
+  pointer-events: auto;
+  transition: opacity 560ms var(--ease-out);
 }
-.stage-loader[data-ready="true"] { opacity: 0; }
-.stage-loader-bar {
-  width: min(8rem, 34vw);
-  height: 2px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
-  overflow: hidden;
+.stage-loader[data-ready="true"] {
   opacity: 0;
-  animation: loader-appear 240ms ease 140ms forwards;
+  pointer-events: none;
 }
-.stage-loader-bar::after {
-  content: '';
-  display: block;
-  width: 45%;
+.stage-loader-track {
+  width: min(9.5rem, 42vw);
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 11%);
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+.stage-loader-fill {
+  width: 100%;
   height: 100%;
   border-radius: inherit;
-  background: var(--accent);
-  animation: loader-sweep 1.1s ease-in-out infinite;
-}
-@keyframes loader-appear { to { opacity: 1; } }
-@keyframes loader-sweep {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(260%); }
+  background: linear-gradient(90deg, #0084ff 0%, #59c0ff 100%);
+  transform-origin: left center;
+  transform: scaleX(var(--boot-progress, 0.14));
+  transition: transform 280ms var(--ease-out);
 }
 
 .laptop.enter {
@@ -447,8 +447,8 @@ button { font: inherit; }
 }
 
 @keyframes laptop-float {
-  from { translate: 0 0; rotate: 0deg; }
-  to { translate: 3px -20px; rotate: -0.6deg; }
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(3px, -20px, 0) rotate(-0.6deg); }
 }
 
 @keyframes enter {
@@ -1954,7 +1954,8 @@ button { font: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .enter, .laptop.enter, .stage-loader-bar, .stage-loader-bar::after, .vw-demo-lyric, .vw-demo-piece, .vw-demo-accent { animation: none; }
+  .enter, .laptop.enter, .vw-demo-lyric, .vw-demo-piece, .vw-demo-accent { animation: none; }
+  .stage-loader, .stage-loader-fill { transition: none; }
   .hero-bg-motion { transform: none !important; }
   .button, .action-dialog, .action-dialog[open], .vw-play-circle, .vw-spotlight-surface {
     transition: none;

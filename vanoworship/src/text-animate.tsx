@@ -87,6 +87,10 @@ interface TextAnimateProps extends Omit<MotionProps, "children"> {
    */
   once?: boolean
   /**
+   * Controls when non-viewport animations transition from hidden to show
+   */
+  play?: boolean
+  /**
    * The animation preset to use
    */
   animation?: AnimationVariant
@@ -339,6 +343,7 @@ const TextAnimateBase = ({
   as: Component = "p",
   startOnView = true,
   once = false,
+  play = true,
   by = "word",
   animation = "fadeIn",
   accessible = true,
@@ -415,7 +420,7 @@ const TextAnimateBase = ({
         variants={finalVariants.container as Variants}
         initial={reducedMotion ? false : "hidden"}
         whileInView={startOnView && !reducedMotion ? "show" : undefined}
-        animate={startOnView && !reducedMotion ? undefined : "show"}
+        animate={startOnView && !reducedMotion ? undefined : play ? "show" : "hidden"}
         exit={reducedMotion ? undefined : "exit"}
         className={cn("text-animate", className)}
         viewport={{ once }}
