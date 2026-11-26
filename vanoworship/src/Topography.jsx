@@ -744,11 +744,14 @@ const Topography = ({
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
-    const ratio = Math.min(settingsRef.current.dpr || window.devicePixelRatio || 1, 2);
+    const compactGpu = window.matchMedia?.('(max-width: 760px), (hover: none) and (pointer: coarse)').matches ?? false;
+    const cellCap = compactGpu ? 65000 : MAX_CELLS;
+    const bloomCount = compactGpu ? 3 : BLOOM_LEVELS;
+    const bloomDiv = compactGpu ? 3 : 2;
     const gl = canvas?.getContext('webgl2', {
       alpha: true,
       premultipliedAlpha: true,
-      antialias: ratio < 1.5,
+      antialias: false,
       depth: true,
       stencil: false,
       powerPreference: 'high-performance'
@@ -844,7 +847,7 @@ const Topography = ({
     };
 
     const source = createTarget();
-    const levels = Array.from({ length: BLOOM_LEVELS }, () => [createTarget(), createTarget()]);
+    const levels = Array.from({ length: bloomCount }, () => [createTarget(), createTarget()]);
     let sculpt = sculptProgram
       ? [0, 1].map(() => {
           const texture = createTexture(SCULPT_SIZE, SCULPT_SIZE, gl.RG16F, gl.REPEAT);
@@ -1037,7 +1040,7 @@ const Topography = ({
       const k0 = Math.floor((box.minX + fracX) / cell) - 2;
       const m0 = Math.floor((box.minZ + fracZ) / cell) - 2;
       const columns = clamp(Math.ceil((box.maxX + fracX) / cell) + 2 - k0, 1, 4000);
-      const rows = clamp(Math.ceil((box.maxZ + fracZ) / cell) + 2 - m0, 1, Math.floor((MAX_CELLS * 1.5) / columns));
+      const rows = clamp(Math.ceil((box.maxZ + fracZ) / cell) + 2 - m0, 1, Math.floor((cellCap * 1.5) / columns));
       return { cell, camX, camZ, fracX, fracZ, k0, m0, columns, rows };
     };
 
@@ -1060,7 +1063,7 @@ const Topography = ({
         const focal = (view.height * view.ratio * 0.5) / lens(view.width / view.height);
         let cell = clamp((14 * Math.max(box.near, 0.5)) / focal, 0.02, 0.4);
         const cells = ((box.maxX - box.minX) * (box.maxZ - box.minZ)) / (cell * cell);
-        if (cells > MAX_CELLS) cell *= Math.sqrt(cells / MAX_CELLS);
+        if (cells > cellCap) cell *= Math.sqrt(cells / cellCap);
         view.cell = cell;
       }
 
@@ -1202,8 +1205,8 @@ const Topography = ({
 
       const bloom = s.glow > 0.001;
       if (bloom) {
-        const width = Math.max(1, Math.round(view.width / 2));
-        const targetHeight = Math.max(1, Math.round(view.height / 2));
+        const width = Math.max(1, Math.round(view.width / bloomDiv));
+        const targetHeight = Math.max(1, Math.round(view.height / bloomDiv));
         allocate(source, width, targetHeight, true);
         levels.forEach((pair, index) => {
           const w = Math.max(1, Math.round(view.width / 2 ** (index + 2)));
@@ -1212,7 +1215,7 @@ const Topography = ({
           allocate(pair[1], w, h, false);
         });
         gl.bindFramebuffer(gl.FRAMEBUFFER, source.framebuffer);
-        drawTerrain(0.5, width, targetHeight, 2);
+        drawTerrain(1 / bloomDiv, width, targetHeight, 2);
         let from = source;
         levels.forEach(([front, back]) => {
           gl.bindFramebuffer(gl.FRAMEBUFFER, front.framebuffer);
@@ -1245,12 +1248,13 @@ const Topography = ({
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.useProgram(compositeProgram.program);
         const c = compositeProgram.uniforms;
-        levels.forEach(([front], index) => {
-          bind(index, front.texture);
+        for (let index = 0; index < BLOOM_LEVELS; index++) {
+          const tex = levels[index]?.[0]?.texture ?? blank;
+          bind(index, tex);
           gl.uniform1i(c[`uBloom${index}`], index);
-        });
+        }
         gl.uniform2f(c.uView, canvas.width, canvas.height);
-        gl.uniform1f(c.uGlow, s.glow * reveal);
+        gl.uniform1f(c.uGlow, s.glow * (bloomCount < BLOOM_LEVELS ? 1.12 : 1) * reveal);
         gl.uniform1f(c.uLightMode, s.lightMode ? 1 : 0);
         gl.enable(gl.BLEND);
         if (s.lightMode) gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -1473,6 +1477,7 @@ const Topography = ({
     };
 
     const onPointerMove = event => {
+      if (event.pointerType === 'touch') return;
       const { x, y, inside } = locate(event);
       const was = pointer.inside;
       pointer.inside = inside;
@@ -1487,9 +1492,12 @@ const Topography = ({
       const s = settingsRef.current;
       const { x, y, inside } = locate(event);
       if (!inside) return;
-      pointer.x = x;
-      pointer.y = y;
-      pointer.inside = true;
+      const isTouch = event.pointerType === 'touch';
+      if (!isTouch) {
+        pointer.x = x;
+        pointer.y = y;
+        pointer.inside = true;
+      }
       wake();
       if (s.glitch > 0 && !reduce) {
         glitch.until = state.clock + 0.16;
@@ -1590,7 +1598,13 @@ const Topography = ({
 
   useEffect(() => {
     wakeRef.current?.();
-  });
+  }, [
+    color, lineCount, lineWidth, majorLines, elevation, foreground,
+    scale, detail, tilt, speed, direction, morph, glow, depthOfField,
+    fog, brightness, opacity, mouseInteraction, hoverEffect, mouseRadius,
+    mouseStrength, trail, parallax, clickEffect, markers, glitch, intro,
+    lightMode, dpr
+  ]);
 
   return (
     <div ref={containerRef} className={`topography-container ${className}`.trim()} style={style}>

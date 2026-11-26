@@ -1,7 +1,21 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { m, useMotionValue, useReducedMotion, useSpring } from 'motion/react';
 
 const tiltSpring = { stiffness: 220, damping: 26, mass: 0.65 };
+
+function useCoarsePointer() {
+  const [coarse, setCoarse] = useState(() =>
+    typeof window !== 'undefined' && (window.matchMedia?.('(hover: none) and (pointer: coarse)').matches ?? false)
+  );
+  useEffect(() => {
+    const mq = window.matchMedia?.('(hover: none) and (pointer: coarse)');
+    if (!mq) return;
+    const sync = () => setCoarse(mq.matches);
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+  return coarse;
+}
 
 /**
  * Interactive 3D perspective stage inspired by React Bits TiltedCard & SpotlightCard.
@@ -10,15 +24,17 @@ const tiltSpring = { stiffness: 220, damping: 26, mass: 0.65 };
 export function TiltedStage3D({ children, className = '', maxTilt = 3.2, disabled = false }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
+  const coarse = useCoarsePointer();
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
   const rotateX = useSpring(rawX, tiltSpring);
   const rotateY = useSpring(rawY, tiltSpring);
 
-  const canTilt = !reduced && !disabled;
+  const canTilt = !reduced && !disabled && !coarse;
 
   const handleMove = useCallback(
     e => {
+      if (e.pointerType === 'touch') return;
       const el = ref.current;
       if (!el || !canTilt) return;
       const rect = el.getBoundingClientRect();
@@ -44,8 +60,8 @@ export function TiltedStage3D({ children, className = '', maxTilt = 3.2, disable
         ref={ref}
         className={`vw-tilt-surface ${className}`.trim()}
         style={canTilt ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : undefined}
-        onPointerMove={handleMove}
-        onPointerLeave={handleLeave}
+        onPointerMove={canTilt ? handleMove : undefined}
+        onPointerLeave={canTilt ? handleLeave : undefined}
       >
         {children}
       </m.div>
@@ -54,30 +70,16 @@ export function TiltedStage3D({ children, className = '', maxTilt = 3.2, disable
 }
 
 /**
- * Surface card with subtle cursor-following depth sheen (no borders, no neon outlines).
+ * Surface container with optional smooth scroll-reveal entrance.
  */
 const spotlightEase = [0.22, 1, 0.36, 1];
 
 export function SpotlightSurface({ as: Tag = 'article', children, className = '', delay = null }) {
-  const ref = useRef(null);
   const MotionTag = Tag === 'div' ? m.div : m.article;
-
-  const handleMove = useCallback(e => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    el.style.setProperty('--sx', `${e.clientX - rect.left}px`);
-    el.style.setProperty('--sy', `${e.clientY - rect.top}px`);
-  }, []);
 
   if (delay === null) {
     return (
-      <Tag
-        ref={ref}
-        className={`vw-spotlight-surface ${className}`.trim()}
-        onPointerMove={handleMove}
-      >
+      <Tag className={`vw-spotlight-surface ${className}`.trim()}>
         {children}
       </Tag>
     );
@@ -85,9 +87,7 @@ export function SpotlightSurface({ as: Tag = 'article', children, className = ''
 
   return (
     <MotionTag
-      ref={ref}
       className={`vw-spotlight-surface ${className}`.trim()}
-      onPointerMove={handleMove}
       initial={{ opacity: 0, y: 26 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.08 }}

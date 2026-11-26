@@ -6,6 +6,7 @@ import logo from '../Assets/LOGO VANOWORSHIP.webp';
 import laptop from '../Assets/LAPTOP PLACEHOLDER.webp';
 import laptopMobile from '../Assets/laptop-ui-mobile.webp';
 import desktopBg from '../Assets/Background Hero - Baru.webp';
+import mobileBg from '../Assets/hero-bg-mobile.webp';
 import './styles.css';
 import LightRays from './LightRays';
 import { TextAnimate } from './text-animate';
@@ -16,7 +17,7 @@ const Showcase = lazy(loadShowcase);
 
 const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL || 'https://github.com/edwardkatuuk/Website-Portfolio/releases/download/Installer_VanoWorship/VanoWorship-1.0.0-Setup.exe';
 
-const slideUpWords = { as: 'span', animation: 'slideUp', by: 'word', startOnView: false, accessible: false };
+const slideUpWords = { as: 'span', animation: 'slideUp', by: 'word', startOnView: false, accessible: false, presence: false };
 
 function ActionDialog({ dialogRef, id, title, closeLabel, Icon, children }) {
   return (
@@ -45,14 +46,7 @@ function preloadImage(src) {
     const img = new Image();
     const finish = () => {
       const decoded = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
-      decoded.then(() => {
-        if (typeof createImageBitmap === 'function' && img.naturalWidth > 0) {
-          return createImageBitmap(img).then(bmp => {
-            bmp.close?.();
-          }).catch(() => {});
-        }
-        return undefined;
-      }).then(resolve, resolve);
+      decoded.then(resolve, resolve);
     };
     img.onload = finish;
     img.onerror = resolve;
@@ -85,6 +79,11 @@ function LandingPage() {
   const [raysReady, setRaysReady] = useState(false);
   const [topoReady, setTopoReady] = useState(false);
   const [siteReady, setSiteReady] = useState(false);
+  const [loaderDone, setLoaderDone] = useState(false);
+  const [heroInView, setHeroInView] = useState(true);
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== 'undefined' && (window.matchMedia?.('(max-width: 760px), (max-aspect-ratio: 1/1)').matches ?? false)
+  );
 
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -108,12 +107,40 @@ function LandingPage() {
   }, [t.langCode]);
 
   useEffect(() => {
+    const mq = window.matchMedia?.('(max-width: 760px), (max-aspect-ratio: 1/1)');
+    if (!mq) return undefined;
+    const sync = () => setIsCompact(mq.matches);
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
+    const io = new IntersectionObserver(
+      entries => {
+        setHeroInView(entries.some(entry => entry.isIntersecting));
+      },
+      { threshold: 0.01 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!siteReady) return undefined;
+    const delay = prefersReducedMotion ? 60 : 620;
+    const timer = setTimeout(() => setLoaderDone(true), delay);
+    return () => clearTimeout(timer);
+  }, [siteReady, prefersReducedMotion]);
+
+  useEffect(() => {
     let active = true;
     const isMobile = window.matchMedia?.('(max-width: 760px), (max-aspect-ratio: 1/1)').matches;
     const criticalImages = [
       logo,
       isMobile ? laptopMobile : laptop,
-      desktopBg
+      isMobile ? mobileBg : desktopBg
     ];
 
     (document.fonts?.ready || Promise.resolve()).then(
@@ -197,26 +224,31 @@ function LandingPage() {
         </button>
       </nav>
 
-      <main className="hero" ref={heroRef} data-ready={siteReady} aria-labelledby="hero-title">
-      <div className="stage-loader" data-ready={siteReady} aria-hidden={siteReady}>
-        <div className="stage-loader-track">
-          <div className="stage-loader-fill" style={{ '--boot-progress': bootProgress }} />
+      <main className="hero" ref={heroRef} data-ready={siteReady} data-in-view={heroInView} aria-labelledby="hero-title">
+      {!loaderDone && (
+        <div className="stage-loader" data-ready={siteReady} aria-hidden={siteReady}>
+          <div className="stage-loader-track">
+            <div className="stage-loader-fill" style={{ '--boot-progress': bootProgress }} />
+          </div>
         </div>
-      </div>
+      )}
       <div className="hero-bg-wrap" aria-hidden="true">
         <m.div
           className="hero-bg-motion"
           style={prefersReducedMotion ? undefined : { y: bgY, scale: bgScale }}
         >
-          <img
-            className="hero-bg-img"
-            src={desktopBg}
-            width="2752"
-            height="1536"
-            alt=""
-            decoding="async"
-            fetchPriority="high"
-          />
+          <picture>
+            <source media="(max-width: 760px), (max-aspect-ratio: 1/1)" srcSet={mobileBg} />
+            <img
+              className="hero-bg-img"
+              src={desktopBg}
+              width="2752"
+              height="1536"
+              alt=""
+              decoding="async"
+              fetchPriority="high"
+            />
+          </picture>
         </m.div>
         <div className="hero-bg-scrim" />
       </div>
@@ -234,9 +266,10 @@ function LandingPage() {
         followMouse
         mouseInfluence={0.1}
         opacity={0.34}
+        maxDevicePixelRatio={isCompact ? 1 : 2}
       />
       <div className="hero-inner">
-        <img className="brand enter" src={logo} alt="VanoWorship" />
+        <img className="brand enter" src={logo} width="480" height="336" alt="VanoWorship" decoding="async" />
         <h1 id="hero-title" className="headline">
           <span className="text-animate-readable">{t.hero.srTitle}</span>
           <span key={lang}>
@@ -270,9 +303,10 @@ function LandingPage() {
           <img
             className="laptop enter"
             src={laptop}
-            width="7680"
-            height="5760"
+            width="2560"
+            height="1920"
             alt={t.hero.laptopAlt}
+            decoding="async"
             fetchPriority="high"
           />
         </picture>
@@ -297,6 +331,7 @@ function LandingPage() {
       <Suspense fallback={null}>
         <Showcase
           lang={lang}
+          isCompact={isCompact}
           downloadUrl={downloadUrl}
           onDownloadFallback={() => downloadDialog.current?.showModal()}
           onOpenSupport={() => supportDialog.current?.showModal()}

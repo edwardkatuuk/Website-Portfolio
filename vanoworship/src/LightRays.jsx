@@ -290,7 +290,13 @@ const LightRays = ({
 
   useEffect(() => {
     wakeRef.current?.();
-  });
+  }, [
+    active, raysOrigin, raysColor, raysSpeed, lightSpread, rayLength,
+    rayDensity, tilt, raySharpness, glow, haze, atmosphere, intensity,
+    pulsating, fadeDistance, saturation, followMouse, mouseInfluence,
+    cursorShadow, clickPulse, noiseAmount, distortion, intro, lightMode,
+    opacity, maxDevicePixelRatio
+  ]);
 
   useEffect(() => {
     const container = containerRef.current;

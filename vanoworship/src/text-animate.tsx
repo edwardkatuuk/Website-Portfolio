@@ -98,6 +98,10 @@ interface TextAnimateProps extends Omit<MotionProps, "children"> {
    * Whether to enable accessibility features (default: true)
    */
   accessible?: boolean
+  /**
+   * Whether to wrap in AnimatePresence popLayout (default: true)
+   */
+  presence?: boolean
 }
 
 const staggerTimings: Record<AnimationType, number> = {
@@ -347,6 +351,7 @@ const TextAnimateBase = ({
   by = "word",
   animation = "fadeIn",
   accessible = true,
+  presence = true,
   ...props
 }: TextAnimateProps) => {
   const MotionComponent = motionElements[Component]
@@ -414,42 +419,42 @@ const TextAnimateBase = ({
         }
       : { container: defaultContainerVariants, item: defaultItemVariants }
 
-  return (
-    <AnimatePresence mode="popLayout">
-      <MotionComponent
-        variants={finalVariants.container as Variants}
-        initial={reducedMotion ? false : "hidden"}
-        whileInView={startOnView && !reducedMotion ? "show" : undefined}
-        animate={startOnView && !reducedMotion ? undefined : play ? "show" : "hidden"}
-        exit={reducedMotion ? undefined : "exit"}
-        className={cn("text-animate", className)}
-        viewport={{ once }}
-        aria-label={accessible ? children : undefined}
-        {...props}
-      >
-        {accessible && <span className="text-animate-readable">{children}</span>}
-        {segments.map((segment, i) =>
-          by === "word" && /^\s+$/.test(segment) ? (
-            " "
-          ) : (
-            <m.span
-              key={`${by}-${segment}-${i}`}
-              variants={reducedMotion ? undefined : finalVariants.item}
-              custom={i * staggerTimings[by]}
-              className={cn(
-                by === "line" ? "text-animate-line" : "text-animate-segment",
-                by === "character" && "",
-                segmentClassName
-              )}
-              aria-hidden={accessible ? true : undefined}
-            >
-              {segment}
-            </m.span>
-          )
-        )}
-      </MotionComponent>
-    </AnimatePresence>
+  const content = (
+    <MotionComponent
+      variants={finalVariants.container as Variants}
+      initial={reducedMotion ? false : "hidden"}
+      whileInView={startOnView && !reducedMotion ? "show" : undefined}
+      animate={startOnView && !reducedMotion ? undefined : play ? "show" : "hidden"}
+      exit={reducedMotion ? undefined : "exit"}
+      className={cn("text-animate", className)}
+      viewport={{ once }}
+      aria-label={accessible ? children : undefined}
+      {...props}
+    >
+      {accessible && <span className="text-animate-readable">{children}</span>}
+      {segments.map((segment, i) =>
+        by === "word" && /^\s+$/.test(segment) ? (
+          " "
+        ) : (
+          <m.span
+            key={`${by}-${segment}-${i}`}
+            variants={reducedMotion ? undefined : finalVariants.item}
+            custom={i * staggerTimings[by]}
+            className={cn(
+              by === "line" ? "text-animate-line" : "text-animate-segment",
+              by === "character" && "",
+              segmentClassName
+            )}
+            aria-hidden={accessible ? true : undefined}
+          >
+            {segment}
+          </m.span>
+        )
+      )}
+    </MotionComponent>
   )
+
+  return presence ? <AnimatePresence mode="popLayout">{content}</AnimatePresence> : content
 }
 
 // Export the memoized version
